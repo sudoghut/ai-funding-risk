@@ -1,0 +1,1348 @@
+{
+  "vix": {
+    "current": {
+      "ticker": "^VIX",
+      "name": "CBOE Volatility Index",
+      "price": 15.86,
+      "previous_close": 15.84,
+      "open": 15.44,
+      "day_high": 16.29,
+      "day_low": 15.3,
+      "volume": 0,
+      "avg_volume": 0,
+      "avg_volume_10d": 0,
+      "52_week_high": 60.13,
+      "52_week_low": 13.38,
+      "50_day_avg": 17.062,
+      "200_day_avg": 18.8498,
+      "market_cap": null,
+      "total_assets": null,
+      "ytd_return": null,
+      "beta": null,
+      "fetch_time": "2026-01-18T19:07:33.696329"
+    },
+    "history": [
+      {
+        "date": "2025-09-10",
+        "close": 15.350000381469727,
+        "high": 15.630000114440918,
+        "low": 14.630000114440918
+      },
+      {
+        "date": "2025-09-11",
+        "close": 14.710000038146973,
+        "high": 15.239999771118164,
+        "low": 14.649999618530273
+      },
+      {
+        "date": "2025-09-12",
+        "close": 14.760000228881836,
+        "high": 14.970000267028809,
+        "low": 14.40999984741211
+      },
+      {
+        "date": "2025-09-15",
+        "close": 15.6899995803833,
+        "high": 15.84000015258789,
+        "low": 14.920000076293945
+      },
+      {
+        "date": "2025-09-16",
+        "close": 16.360000610351562,
+        "high": 16.3799991607666,
+        "low": 15.4399995803833
+      },
+      {
+        "date": "2025-09-17",
+        "close": 15.720000267028809,
+        "high": 16.75,
+        "low": 15.260000228881836
+      },
+      {
+        "date": "2025-09-18",
+        "close": 15.699999809265137,
+        "high": 15.800000190734863,
+        "low": 14.329999923706055
+      },
+      {
+        "date": "2025-09-19",
+        "close": 15.449999809265137,
+        "high": 16.1299991607666,
+        "low": 15.289999961853027
+      },
+      {
+        "date": "2025-09-22",
+        "close": 16.100000381469727,
+        "high": 16.350000381469727,
+        "low": 15.779999732971191
+      },
+      {
+        "date": "2025-09-23",
+        "close": 16.639999389648438,
+        "high": 17.06999969482422,
+        "low": 15.949999809265137
+      },
+      {
+        "date": "2025-09-24",
+        "close": 16.18000030517578,
+        "high": 17.209999084472656,
+        "low": 16.18000030517578
+      },
+      {
+        "date": "2025-09-25",
+        "close": 16.739999771118164,
+        "high": 17.739999771118164,
+        "low": 16.31999969482422
+      },
+      {
+        "date": "2025-09-26",
+        "close": 15.289999961853027,
+        "high": 17.049999237060547,
+        "low": 15.289999961853027
+      },
+      {
+        "date": "2025-09-29",
+        "close": 16.1200008392334,
+        "high": 16.290000915527344,
+        "low": 15.739999771118164
+      },
+      {
+        "date": "2025-09-30",
+        "close": 16.280000686645508,
+        "high": 16.700000762939453,
+        "low": 16.020000457763672
+      },
+      {
+        "date": "2025-10-01",
+        "close": 16.290000915527344,
+        "high": 17.280000686645508,
+        "low": 15.979999542236328
+      },
+      {
+        "date": "2025-10-02",
+        "close": 16.6299991607666,
+        "high": 16.920000076293945,
+        "low": 15.930000305175781
+      },
+      {
+        "date": "2025-10-03",
+        "close": 16.649999618530273,
+        "high": 17.059999465942383,
+        "low": 16.200000762939453
+      },
+      {
+        "date": "2025-10-06",
+        "close": 16.3700008392334,
+        "high": 17.09000015258789,
+        "low": 16.290000915527344
+      },
+      {
+        "date": "2025-10-07",
+        "close": 17.239999771118164,
+        "high": 17.549999237060547,
+        "low": 16.190000534057617
+      },
+      {
+        "date": "2025-10-08",
+        "close": 16.299999237060547,
+        "high": 17.200000762939453,
+        "low": 16.229999542236328
+      },
+      {
+        "date": "2025-10-09",
+        "close": 16.43000030517578,
+        "high": 17.270000457763672,
+        "low": 16.260000228881836
+      },
+      {
+        "date": "2025-10-10",
+        "close": 21.65999984741211,
+        "high": 22.440000534057617,
+        "low": 16.229999542236328
+      },
+      {
+        "date": "2025-10-13",
+        "close": 19.030000686645508,
+        "high": 20.770000457763672,
+        "low": 18.610000610351562
+      },
+      {
+        "date": "2025-10-14",
+        "close": 20.809999465942383,
+        "high": 22.940000534057617,
+        "low": 19.18000030517578
+      },
+      {
+        "date": "2025-10-15",
+        "close": 20.639999389648438,
+        "high": 22.440000534057617,
+        "low": 19.110000610351562
+      },
+      {
+        "date": "2025-10-16",
+        "close": 25.309999465942383,
+        "high": 25.43000030517578,
+        "low": 19.850000381469727
+      },
+      {
+        "date": "2025-10-17",
+        "close": 20.780000686645508,
+        "high": 28.989999771118164,
+        "low": 20.729999542236328
+      },
+      {
+        "date": "2025-10-20",
+        "close": 18.229999542236328,
+        "high": 21.020000457763672,
+        "low": 18.229999542236328
+      },
+      {
+        "date": "2025-10-21",
+        "close": 17.8700008392334,
+        "high": 18.889999389648438,
+        "low": 17.399999618530273
+      },
+      {
+        "date": "2025-10-22",
+        "close": 18.600000381469727,
+        "high": 21.010000228881836,
+        "low": 17.729999542236328
+      },
+      {
+        "date": "2025-10-23",
+        "close": 17.299999237060547,
+        "high": 19.350000381469727,
+        "low": 17.079999923706055
+      },
+      {
+        "date": "2025-10-24",
+        "close": 16.3700008392334,
+        "high": 17.219999313354492,
+        "low": 16.020000457763672
+      },
+      {
+        "date": "2025-10-27",
+        "close": 15.789999961853027,
+        "high": 16.06999969482422,
+        "low": 15.619999885559082
+      },
+      {
+        "date": "2025-10-28",
+        "close": 16.420000076293945,
+        "high": 16.549999237060547,
+        "low": 15.65999984741211
+      },
+      {
+        "date": "2025-10-29",
+        "close": 16.920000076293945,
+        "high": 17.579999923706055,
+        "low": 16.260000228881836
+      },
+      {
+        "date": "2025-10-30",
+        "close": 16.90999984741211,
+        "high": 17.40999984741211,
+        "low": 15.729999542236328
+      },
+      {
+        "date": "2025-10-31",
+        "close": 17.440000534057617,
+        "high": 18.540000915527344,
+        "low": 15.960000038146973
+      },
+      {
+        "date": "2025-11-03",
+        "close": 17.170000076293945,
+        "high": 18.829999923706055,
+        "low": 17.0
+      },
+      {
+        "date": "2025-11-04",
+        "close": 19.0,
+        "high": 20.479999542236328,
+        "low": 17.899999618530273
+      },
+      {
+        "date": "2025-11-05",
+        "close": 18.010000228881836,
+        "high": 20.020000457763672,
+        "low": 17.309999465942383
+      },
+      {
+        "date": "2025-11-06",
+        "close": 19.5,
+        "high": 20.309999465942383,
+        "low": 17.639999389648438
+      },
+      {
+        "date": "2025-11-07",
+        "close": 19.079999923706055,
+        "high": 22.719999313354492,
+        "low": 19.079999923706055
+      },
+      {
+        "date": "2025-11-10",
+        "close": 17.600000381469727,
+        "high": 18.81999969482422,
+        "low": 17.600000381469727
+      },
+      {
+        "date": "2025-11-11",
+        "close": 17.280000686645508,
+        "high": 18.010000228881836,
+        "low": 17.25
+      },
+      {
+        "date": "2025-11-12",
+        "close": 17.510000228881836,
+        "high": 18.059999465942383,
+        "low": 17.100000381469727
+      },
+      {
+        "date": "2025-11-13",
+        "close": 20.0,
+        "high": 21.309999465942383,
+        "low": 17.510000228881836
+      },
+      {
+        "date": "2025-11-14",
+        "close": 19.829999923706055,
+        "high": 23.030000686645508,
+        "low": 19.559999465942383
+      },
+      {
+        "date": "2025-11-17",
+        "close": 22.3799991607666,
+        "high": 23.440000534057617,
+        "low": 19.540000915527344
+      },
+      {
+        "date": "2025-11-18",
+        "close": 24.690000534057617,
+        "high": 25.84000015258789,
+        "low": 22.90999984741211
+      },
+      {
+        "date": "2025-11-19",
+        "close": 23.65999984741211,
+        "high": 24.790000915527344,
+        "low": 21.93000030517578
+      },
+      {
+        "date": "2025-11-20",
+        "close": 26.420000076293945,
+        "high": 28.270000457763672,
+        "low": 19.280000686645508
+      },
+      {
+        "date": "2025-11-21",
+        "close": 23.43000030517578,
+        "high": 27.84000015258789,
+        "low": 22.540000915527344
+      },
+      {
+        "date": "2025-11-24",
+        "close": 20.520000457763672,
+        "high": 23.68000030517578,
+        "low": 20.40999984741211
+      },
+      {
+        "date": "2025-11-25",
+        "close": 18.559999465942383,
+        "high": 21.770000457763672,
+        "low": 18.389999389648438
+      },
+      {
+        "date": "2025-11-26",
+        "close": 17.190000534057617,
+        "high": 18.700000762939453,
+        "low": 16.93000030517578
+      },
+      {
+        "date": "2025-11-28",
+        "close": 16.350000381469727,
+        "high": 18.520000457763672,
+        "low": 15.779999732971191
+      },
+      {
+        "date": "2025-12-01",
+        "close": 17.239999771118164,
+        "high": 18.329999923706055,
+        "low": 16.579999923706055
+      },
+      {
+        "date": "2025-12-02",
+        "close": 16.59000015258789,
+        "high": 17.309999465942383,
+        "low": 16.389999389648438
+      },
+      {
+        "date": "2025-12-03",
+        "close": 16.079999923706055,
+        "high": 17.280000686645508,
+        "low": 15.930000305175781
+      },
+      {
+        "date": "2025-12-04",
+        "close": 15.779999732971191,
+        "high": 16.6299991607666,
+        "low": 15.680000305175781
+      },
+      {
+        "date": "2025-12-05",
+        "close": 15.40999984741211,
+        "high": 16.18000030517578,
+        "low": 15.279999732971191
+      },
+      {
+        "date": "2025-12-08",
+        "close": 16.65999984741211,
+        "high": 17.09000015258789,
+        "low": 16.100000381469727
+      },
+      {
+        "date": "2025-12-09",
+        "close": 16.93000030517578,
+        "high": 17.200000762939453,
+        "low": 16.450000762939453
+      },
+      {
+        "date": "2025-12-10",
+        "close": 15.770000457763672,
+        "high": 17.65999984741211,
+        "low": 15.5600004196167
+      },
+      {
+        "date": "2025-12-11",
+        "close": 14.850000381469727,
+        "high": 16.8799991607666,
+        "low": 14.850000381469727
+      },
+      {
+        "date": "2025-12-12",
+        "close": 15.739999771118164,
+        "high": 17.850000381469727,
+        "low": 14.850000381469727
+      },
+      {
+        "date": "2025-12-15",
+        "close": 16.5,
+        "high": 17.350000381469727,
+        "low": 15.989999771118164
+      },
+      {
+        "date": "2025-12-16",
+        "close": 16.479999542236328,
+        "high": 17.610000610351562,
+        "low": 16.190000534057617
+      },
+      {
+        "date": "2025-12-17",
+        "close": 17.6200008392334,
+        "high": 18.0,
+        "low": 15.819999694824219
+      },
+      {
+        "date": "2025-12-18",
+        "close": 16.8700008392334,
+        "high": 17.68000030517578,
+        "low": 15.930000305175781
+      },
+      {
+        "date": "2025-12-19",
+        "close": 14.90999984741211,
+        "high": 16.530000686645508,
+        "low": 14.90999984741211
+      },
+      {
+        "date": "2025-12-22",
+        "close": 14.079999923706055,
+        "high": 15.260000228881836,
+        "low": 14.029999732971191
+      },
+      {
+        "date": "2025-12-23",
+        "close": 14.0,
+        "high": 14.449999809265137,
+        "low": 13.640000343322754
+      },
+      {
+        "date": "2025-12-24",
+        "close": 13.470000267028809,
+        "high": 14.15999984741211,
+        "low": 13.380000114440918
+      },
+      {
+        "date": "2025-12-26",
+        "close": 13.600000381469727,
+        "high": 14.289999961853027,
+        "low": 13.520000457763672
+      },
+      {
+        "date": "2025-12-29",
+        "close": 14.199999809265137,
+        "high": 15.079999923706055,
+        "low": 13.989999771118164
+      },
+      {
+        "date": "2025-12-30",
+        "close": 14.329999923706055,
+        "high": 14.619999885559082,
+        "low": 14.039999961853027
+      },
+      {
+        "date": "2025-12-31",
+        "close": 14.949999809265137,
+        "high": 15.170000076293945,
+        "low": 14.380000114440918
+      },
+      {
+        "date": "2026-01-02",
+        "close": 14.510000228881836,
+        "high": 15.420000076293945,
+        "low": 14.460000038146973
+      },
+      {
+        "date": "2026-01-05",
+        "close": 14.899999618530273,
+        "high": 15.270000457763672,
+        "low": 14.649999618530273
+      },
+      {
+        "date": "2026-01-06",
+        "close": 14.75,
+        "high": 15.210000038146973,
+        "low": 14.630000114440918
+      },
+      {
+        "date": "2026-01-07",
+        "close": 15.380000114440918,
+        "high": 15.479999542236328,
+        "low": 14.829999923706055
+      },
+      {
+        "date": "2026-01-08",
+        "close": 15.449999809265137,
+        "high": 15.850000381469727,
+        "low": 15.149999618530273
+      },
+      {
+        "date": "2026-01-09",
+        "close": 14.489999771118164,
+        "high": 15.8100004196167,
+        "low": 14.430000305175781
+      },
+      {
+        "date": "2026-01-12",
+        "close": 15.119999885559082,
+        "high": 16.65999984741211,
+        "low": 15.029999732971191
+      },
+      {
+        "date": "2026-01-13",
+        "close": 15.979999542236328,
+        "high": 16.5,
+        "low": 14.75
+      },
+      {
+        "date": "2026-01-14",
+        "close": 16.75,
+        "high": 18.100000381469727,
+        "low": 16.219999313354492
+      },
+      {
+        "date": "2026-01-15",
+        "close": 15.84000015258789,
+        "high": 16.540000915527344,
+        "low": 15.300000190734863
+      },
+      {
+        "date": "2026-01-16",
+        "close": 15.859999656677246,
+        "high": 16.290000915527344,
+        "low": 15.300000190734863
+      }
+    ],
+    "statistics": {
+      "current": 15.859999656677246,
+      "avg_30d": 15.372666676839193,
+      "avg_90d": 16.736171901226044,
+      "max_30d": 17.6200008392334,
+      "min_30d": 13.470000267028809,
+      "percentile_current": 41.40625,
+      "week_change": 4.894178417454409,
+      "month_change": -3.76213533240759
+    }
+  },
+  "etfs": {
+    "SPY": {
+      "ticker": "SPY",
+      "description": "S&P 500 ETF",
+      "quote": {
+        "ticker": "SPY",
+        "name": "SPDR S&P 500 ETF",
+        "price": 691.66,
+        "previous_close": 692.24,
+        "open": 693.66,
+        "day_high": 694.25,
+        "day_low": 690.1,
+        "volume": 70483132,
+        "avg_volume": 78657116,
+        "avg_volume_10d": 75500470,
+        "52_week_high": 696.09,
+        "52_week_low": 481.8,
+        "50_day_avg": 681.1144,
+        "200_day_avg": 633.8101,
+        "market_cap": 634793099264,
+        "total_assets": 712072560640,
+        "ytd_return": 17.7547,
+        "beta": 1.0,
+        "fetch_time": "2026-01-18T19:07:34.783281"
+      },
+      "performance": {
+        "1d_return": -0.08378844014015341,
+        "1w_return": -0.5034812324086868,
+        "1m_return": 2.1850636758682818,
+        "3m_return": 4.752694811707503,
+        "ytd_return": 17.7547
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 2.682871494323824,
+        "recent_vs_3m_avg": 3.645926662683441,
+        "volume_trend": "increasing"
+      }
+    },
+    "QQQ": {
+      "ticker": "QQQ",
+      "description": "Nasdaq 100 ETF",
+      "quote": {
+        "ticker": "QQQ",
+        "name": "Invesco QQQ Trust",
+        "price": 621.26,
+        "previous_close": 621.78,
+        "open": 625.53,
+        "day_high": 626.08,
+        "day_low": 618.89,
+        "volume": 58475907,
+        "avg_volume": 55021262,
+        "avg_volume_10d": 50436230,
+        "52_week_high": 637.01,
+        "52_week_low": 402.39,
+        "50_day_avg": 616.2502,
+        "200_day_avg": 565.62506,
+        "market_cap": 244217315328,
+        "total_assets": 407171629056,
+        "ytd_return": 20.76833,
+        "beta": 1.15,
+        "fetch_time": "2026-01-18T19:07:35.698463"
+      },
+      "performance": {
+        "1d_return": -0.08363400346551586,
+        "1w_return": -0.9423239800329997,
+        "1m_return": 1.6854020698270578,
+        "3m_return": 4.023484865904781,
+        "ytd_return": 20.76833
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 10.989647718289985,
+        "recent_vs_3m_avg": 2.124664128021192,
+        "volume_trend": "increasing"
+      }
+    },
+    "XLK": {
+      "ticker": "XLK",
+      "description": "Technology Select Sector",
+      "quote": {
+        "ticker": "XLK",
+        "name": "State Street Technology Select Sector SPDR ETF",
+        "price": 145.62,
+        "previous_close": 145.46,
+        "open": 146.72,
+        "day_high": 146.95,
+        "day_low": 145.02,
+        "volume": 13337259,
+        "avg_volume": 16202880,
+        "avg_volume_10d": 16199130,
+        "52_week_high": 152.995,
+        "52_week_low": 86.225,
+        "50_day_avg": 144.33,
+        "200_day_avg": 130.47937,
+        "market_cap": 39616794624,
+        "total_assets": 92476678144,
+        "ytd_return": 24.60421,
+        "beta": 1.21,
+        "fetch_time": "2026-01-18T19:07:36.610446"
+      },
+      "performance": {
+        "1d_return": 0.10998789765974681,
+        "1w_return": -0.7970558092912139,
+        "1m_return": 2.30140185162675,
+        "3m_return": 3.613269565878263,
+        "ytd_return": 24.60421
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 28.793541040103456,
+        "recent_vs_3m_avg": 1.2059406295019892,
+        "volume_trend": "increasing"
+      }
+    },
+    "SMH": {
+      "ticker": "SMH",
+      "description": "VanEck Semiconductor ETF",
+      "quote": {
+        "ticker": "SMH",
+        "name": "VanEck Semiconductor ETF",
+        "price": 400.39,
+        "previous_close": 396.545,
+        "open": 402.76,
+        "day_high": 405.31,
+        "day_low": 398.42,
+        "volume": 5473921,
+        "avg_volume": 7186162,
+        "avg_volume_10d": 7048670,
+        "52_week_high": 405.31,
+        "52_week_low": 170.11,
+        "50_day_avg": 360.8774,
+        "200_day_avg": 299.13184,
+        "market_cap": 4672911872,
+        "total_assets": 37268475904,
+        "ytd_return": 49.16406,
+        "beta": 1.64,
+        "fetch_time": "2026-01-18T19:07:37.509462"
+      },
+      "performance": {
+        "1d_return": 1.0040137608940292,
+        "1w_return": 2.4906596260475755,
+        "1m_return": 14.120552368670491,
+        "3m_return": 20.430539836225226,
+        "ytd_return": 49.16406
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 6.119869936747557,
+        "recent_vs_3m_avg": -13.764806135230689,
+        "volume_trend": "increasing"
+      }
+    },
+    "SOXX": {
+      "ticker": "SOXX",
+      "description": "iShares Semiconductor ETF",
+      "quote": {
+        "ticker": "SOXX",
+        "name": "iShares Semiconductor ETF",
+        "price": 342.47,
+        "previous_close": 337.22,
+        "open": 343.505,
+        "day_high": 345.41,
+        "day_low": 340.22,
+        "volume": 5120407,
+        "avg_volume": 5974656,
+        "avg_volume_10d": 5888520,
+        "52_week_high": 345.41,
+        "52_week_low": 148.31,
+        "50_day_avg": 303.9976,
+        "200_day_avg": 253.3963,
+        "market_cap": 2619895552,
+        "total_assets": 17523822592,
+        "ytd_return": 40.70879,
+        "beta": 1.72,
+        "fetch_time": "2026-01-18T19:07:38.387811"
+      },
+      "performance": {
+        "1d_return": 1.5568471564543884,
+        "1w_return": 3.6688345370847975,
+        "1m_return": 15.621197537740517,
+        "3m_return": 22.915738852151147,
+        "ytd_return": 40.70879
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": -0.3450969647732727,
+        "recent_vs_3m_avg": -22.64136786757762,
+        "volume_trend": "decreasing"
+      }
+    },
+    "IGV": {
+      "ticker": "IGV",
+      "description": "iShares Software ETF",
+      "quote": {
+        "ticker": "IGV",
+        "name": "iShares Expanded Tech-Software Sector ETF",
+        "price": 98.31,
+        "previous_close": 99.78,
+        "open": 100.0,
+        "day_high": 100.0899,
+        "day_low": 98.085,
+        "volume": 7818083,
+        "avg_volume": 4730616,
+        "avg_volume_10d": 5367520,
+        "52_week_high": 117.99,
+        "52_week_low": 76.68,
+        "50_day_avg": 106.09,
+        "200_day_avg": 106.4769,
+        "market_cap": 1228875008,
+        "total_assets": 7906854400,
+        "ytd_return": 5.61529,
+        "beta": 1.27,
+        "fetch_time": "2026-01-18T19:07:39.288692"
+      },
+      "performance": {
+        "1d_return": -1.4732423719052368,
+        "1w_return": -6.682487914090196,
+        "1m_return": -7.525162434126409,
+        "3m_return": -13.45188772948298,
+        "ytd_return": 5.61529
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 74.60866981167118,
+        "recent_vs_3m_avg": 45.807848706179996,
+        "volume_trend": "increasing"
+      }
+    },
+    "ARKK": {
+      "ticker": "ARKK",
+      "description": "ARK Innovation ETF",
+      "quote": {
+        "ticker": "ARKK",
+        "name": "ARK Innovation ETF",
+        "price": 81.68,
+        "previous_close": 81.93,
+        "open": 82.36,
+        "day_high": 82.635,
+        "day_low": 81.35,
+        "volume": 5416924,
+        "avg_volume": 8432259,
+        "avg_volume_10d": 7018960,
+        "52_week_high": 92.65,
+        "52_week_low": 38.569,
+        "50_day_avg": 79.7622,
+        "200_day_avg": 72.2969,
+        "market_cap": null,
+        "total_assets": 6974854656,
+        "ytd_return": 35.57994,
+        "beta": 2.81,
+        "fetch_time": "2026-01-18T19:07:40.194185"
+      },
+      "performance": {
+        "1d_return": -0.30513853175734296,
+        "1w_return": -1.0419197974466998,
+        "1m_return": 1.9216382920590025,
+        "3m_return": -5.963619927212449,
+        "ytd_return": 35.57994
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 1.6854958293137656,
+        "recent_vs_3m_avg": -30.865706058118025,
+        "volume_trend": "increasing"
+      }
+    },
+    "BOTZ": {
+      "ticker": "BOTZ",
+      "description": "Global X Robotics & AI ETF",
+      "quote": {
+        "ticker": "BOTZ",
+        "name": "Global X Robotics & Artificial Intelligence ETF",
+        "price": 38.35,
+        "previous_close": 38.34,
+        "open": 38.405,
+        "day_high": 38.525,
+        "day_low": 38.1891,
+        "volume": 735921,
+        "avg_volume": 833348,
+        "avg_volume_10d": 1022970,
+        "52_week_high": 38.61,
+        "52_week_low": 23.815,
+        "50_day_avg": 36.2184,
+        "200_day_avg": 33.5208,
+        "market_cap": null,
+        "total_assets": 3162844928,
+        "ytd_return": 13.70655,
+        "beta": 1.62,
+        "fetch_time": "2026-01-18T19:07:41.063355"
+      },
+      "performance": {
+        "1d_return": 0.026078042497168497,
+        "1w_return": -0.23413151873881155,
+        "1m_return": 7.615504811333418,
+        "3m_return": 5.608958820348864,
+        "ytd_return": 13.70655
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 23.950699494033636,
+        "recent_vs_3m_avg": 29.644186309990793,
+        "volume_trend": "increasing"
+      }
+    },
+    "AIQ": {
+      "ticker": "AIQ",
+      "description": "Global X AI & Technology ETF",
+      "quote": {
+        "ticker": "AIQ",
+        "name": "Global X Artificial Intelligence & Technology ETF",
+        "price": 52.34,
+        "previous_close": 52.36,
+        "open": 52.71,
+        "day_high": 52.79,
+        "day_low": 52.095,
+        "volume": 2126527,
+        "avg_volume": 1835353,
+        "avg_volume_10d": 2309010,
+        "52_week_high": 53.75,
+        "52_week_low": 30.6,
+        "50_day_avg": 50.914,
+        "200_day_avg": 45.5496,
+        "market_cap": null,
+        "total_assets": 7364290560,
+        "ytd_return": 32.03525,
+        "beta": 1.41,
+        "fetch_time": "2026-01-18T19:07:41.939158"
+      },
+      "performance": {
+        "1d_return": -0.03819797083752796,
+        "1w_return": -1.5239912512450715,
+        "1m_return": 5.044689835431004,
+        "3m_return": 5.1712170974340665,
+        "ytd_return": 32.03525
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 33.740023357318535,
+        "recent_vs_3m_avg": 34.74845756677665,
+        "volume_trend": "increasing"
+      }
+    },
+    "IPO": {
+      "ticker": "IPO",
+      "description": "Renaissance IPO ETF",
+      "quote": {
+        "ticker": "IPO",
+        "name": "Renaissance IPO ETF",
+        "price": 48.14,
+        "previous_close": 47.72,
+        "open": 48.04,
+        "day_high": 48.65,
+        "day_low": 47.7076,
+        "volume": 34732,
+        "avg_volume": 53751,
+        "avg_volume_10d": 41040,
+        "52_week_high": 54.68,
+        "52_week_low": 31.2,
+        "50_day_avg": 46.3452,
+        "200_day_avg": 45.724,
+        "market_cap": null,
+        "total_assets": 139223296,
+        "ytd_return": 5.35875,
+        "beta": 1.7,
+        "fetch_time": "2026-01-18T19:07:42.817213"
+      },
+      "performance": {
+        "1d_return": 0.8801302560803359,
+        "1w_return": -0.5782709415227849,
+        "1m_return": 4.697694364759575,
+        "3m_return": -2.19423365353435,
+        "ytd_return": 5.35875
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 11.253693541578723,
+        "recent_vs_3m_avg": -47.57380468042188,
+        "volume_trend": "increasing"
+      }
+    },
+    "VUG": {
+      "ticker": "VUG",
+      "description": "Vanguard Growth ETF",
+      "quote": {
+        "ticker": "VUG",
+        "name": "Vanguard Growth Index Fund ETF Shares",
+        "price": 485.09,
+        "previous_close": 485.59,
+        "open": 487.64,
+        "day_high": 488.19,
+        "day_low": 483.89,
+        "volume": 1544555,
+        "avg_volume": 1315004,
+        "avg_volume_10d": 2202150,
+        "52_week_high": 505.38,
+        "52_week_low": 316.14,
+        "50_day_avg": 487.4442,
+        "200_day_avg": 449.99216,
+        "market_cap": 117424283648,
+        "total_assets": 352384516096,
+        "ytd_return": 19.43992,
+        "beta": 1.21,
+        "fetch_time": "2026-01-18T19:07:43.696455"
+      },
+      "performance": {
+        "1d_return": -0.10296752481945282,
+        "1w_return": -1.5105683836204475,
+        "1m_return": 0.319378744756027,
+        "3m_return": 2.037432572537856,
+        "ytd_return": 19.43992
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 80.20934855655048,
+        "recent_vs_3m_avg": 147.28229277956996,
+        "volume_trend": "increasing"
+      }
+    },
+    "VTV": {
+      "ticker": "VTV",
+      "description": "Vanguard Value ETF",
+      "quote": {
+        "ticker": "VTV",
+        "name": "Vanguard Value Index Fund ETF Shares",
+        "price": 198.37,
+        "previous_close": 198.41,
+        "open": 198.46,
+        "day_high": 198.95,
+        "day_low": 198.05,
+        "volume": 3203056,
+        "avg_volume": 4067725,
+        "avg_volume_10d": 4599590,
+        "52_week_high": 198.98,
+        "52_week_low": 150.43,
+        "50_day_avg": 190.7636,
+        "200_day_avg": 180.4208,
+        "market_cap": 84158668800,
+        "total_assets": 217683984384,
+        "ytd_return": 15.27378,
+        "beta": 0.78,
+        "fetch_time": "2026-01-18T19:07:44.591152"
+      },
+      "performance": {
+        "1d_return": -0.02016458050674297,
+        "1w_return": 0.746572506993548,
+        "1m_return": 4.200321729226464,
+        "3m_return": 7.128203370254682,
+        "ytd_return": 15.27378
+      },
+      "fund_flow_proxy": {
+        "recent_vs_1m_avg": 36.66511306472091,
+        "recent_vs_3m_avg": 54.04957030763482,
+        "volume_trend": "increasing"
+      }
+    }
+  },
+  "ai_stocks": {
+    "stocks": {
+      "AMZN": {
+        "ticker": "AMZN",
+        "quote": {
+          "ticker": "AMZN",
+          "name": "Amazon.com, Inc.",
+          "price": 239.12,
+          "previous_close": 238.18,
+          "open": 239.085,
+          "day_high": 239.57,
+          "day_low": 236.41,
+          "volume": 38516932,
+          "avg_volume": 44772259,
+          "avg_volume_10d": 42428280,
+          "52_week_high": 258.6,
+          "52_week_low": 161.38,
+          "50_day_avg": 233.3676,
+          "200_day_avg": 219.22314,
+          "market_cap": 2556244262912,
+          "total_assets": null,
+          "ytd_return": null,
+          "beta": 1.376,
+          "fetch_time": "2026-01-18T19:07:45.284245"
+        },
+        "performance": {
+          "1d_return": 0.39466053837939885,
+          "1w_return": -2.982109817467815,
+          "1m_return": 7.440689135626877,
+          "from_52w_high": -7.5328711843822616
+        }
+      },
+      "MSFT": {
+        "ticker": "MSFT",
+        "quote": {
+          "ticker": "MSFT",
+          "name": "Microsoft Corporation",
+          "price": 459.86,
+          "previous_close": 456.66,
+          "open": 457.37,
+          "day_high": 463.19,
+          "day_low": 456.48,
+          "volume": 32991754,
+          "avg_volume": 23998909,
+          "avg_volume_10d": 24777730,
+          "52_week_high": 555.45,
+          "52_week_low": 344.79,
+          "50_day_avg": 484.8346,
+          "200_day_avg": 482.2587,
+          "market_cap": 3418215677952,
+          "total_assets": null,
+          "ytd_return": null,
+          "beta": 1.073,
+          "fetch_time": "2026-01-18T19:07:45.935513"
+        },
+        "performance": {
+          "1d_return": 0.7007361415038327,
+          "1w_return": -3.6296591621742147,
+          "1m_return": -3.4698521775427427,
+          "from_52w_high": -17.209472436481686
+        }
+      },
+      "GOOG": {
+        "ticker": "GOOG",
+        "quote": {
+          "ticker": "GOOG",
+          "name": "Alphabet Inc.",
+          "price": 330.34,
+          "previous_close": 333.16,
+          "open": 334.935,
+          "day_high": 335.2399,
+          "day_low": 328.17,
+          "volume": 21764343,
+          "avg_volume": 23289733,
+          "avg_volume_10d": 20787310,
+          "52_week_high": 341.2,
+          "52_week_low": 142.66,
+          "50_day_avg": 310.0518,
+          "200_day_avg": 227.3339,
+          "market_cap": 3987809501184,
+          "total_assets": null,
+          "ytd_return": null,
+          "beta": 1.086,
+          "fetch_time": "2026-01-18T19:07:46.618640"
+        },
+        "performance": {
+          "1d_return": -0.8464423379820785,
+          "1w_return": -0.7183045020052958,
+          "1m_return": 7.347344927163113,
+          "from_52w_high": -3.182885012341552
+        }
+      },
+      "META": {
+        "ticker": "META",
+        "quote": {
+          "ticker": "META",
+          "name": "Meta Platforms, Inc.",
+          "price": 620.25,
+          "previous_close": 620.8,
+          "open": 624.1762,
+          "day_high": 629.08,
+          "day_low": 620.09,
+          "volume": 16672912,
+          "avg_volume": 18440453,
+          "avg_volume_10d": 13799240,
+          "52_week_high": 796.25,
+          "52_week_low": 479.8,
+          "50_day_avg": 639.361,
+          "200_day_avg": 675.71716,
+          "market_cap": 1563357216768,
+          "total_assets": null,
+          "ytd_return": null,
+          "beta": 1.287,
+          "fetch_time": "2026-01-18T19:07:47.272278"
+        },
+        "performance": {
+          "1d_return": -0.08859339622798723,
+          "1w_return": -3.3833312607030486,
+          "1m_return": -5.615159863527941,
+          "from_52w_high": -22.103610675039242
+        }
+      },
+      "ORCL": {
+        "ticker": "ORCL",
+        "quote": {
+          "ticker": "ORCL",
+          "name": "Oracle Corporation",
+          "price": 191.09,
+          "previous_close": 189.85,
+          "open": 189.91,
+          "day_high": 191.8653,
+          "day_low": 186.54,
+          "volume": 18489083,
+          "avg_volume": 24752351,
+          "avg_volume_10d": 19515750,
+          "52_week_high": 345.72,
+          "52_week_low": 118.86,
+          "50_day_avg": 205.964,
+          "200_day_avg": 217.7527,
+          "market_cap": 549026398208,
+          "total_assets": null,
+          "ytd_return": null,
+          "beta": 1.651,
+          "fetch_time": "2026-01-18T19:07:47.974198"
+        },
+        "performance": {
+          "1d_return": 0.6531420566291191,
+          "1w_return": -6.639631045628169,
+          "1m_return": 1.5611594765647663,
+          "from_52w_high": -44.726947721308974
+        }
+      },
+      "NVDA": {
+        "ticker": "NVDA",
+        "quote": {
+          "ticker": "NVDA",
+          "name": "NVIDIA Corporation",
+          "price": 186.23,
+          "previous_close": 186.99,
+          "open": 188.9875,
+          "day_high": 190.44,
+          "day_low": 186.08,
+          "volume": 170842320,
+          "avg_volume": 183611588,
+          "avg_volume_10d": 166920600,
+          "52_week_high": 212.19,
+          "52_week_low": 86.62,
+          "50_day_avg": 184.5578,
+          "200_day_avg": 164.05635,
+          "market_cap": 4534141714432,
+          "total_assets": null,
+          "ytd_return": null,
+          "beta": 2.314,
+          "fetch_time": "2026-01-18T19:07:48.646870"
+        },
+        "performance": {
+          "1d_return": -0.43838936692871533,
+          "1w_return": 0.697519881639197,
+          "1m_return": 4.788428116353494,
+          "from_52w_high": -12.23432031314432
+        }
+      }
+    },
+    "aggregate": {
+      "avg_1w_return": -2.775919317723224,
+      "max_1w_return": 0.697519881639197,
+      "min_1w_return": -6.639631045628169,
+      "stocks_positive": 1,
+      "stocks_negative": 5
+    },
+    "fetch_time": "2026-01-18T19:07:48.890329"
+  },
+  "semiconductor": {
+    "stocks": {
+      "NVDA": {
+        "ticker": "NVDA",
+        "name": "NVIDIA Corporation",
+        "market_cap": 4534141714432,
+        "performance": {
+          "1w_return": 0.697519881639197,
+          "1m_return": 4.788428116353494,
+          "3m_return": 1.648485637933983
+        }
+      },
+      "AMD": {
+        "ticker": "AMD",
+        "name": "Advanced Micro Devices, Inc.",
+        "market_cap": 377428901888,
+        "performance": {
+          "1w_return": 11.623091677924569,
+          "1m_return": 10.833295338945813,
+          "3m_return": -0.536296546327486
+        }
+      },
+      "INTC": {
+        "ticker": "INTC",
+        "name": "Intel Corporation",
+        "market_cap": 223999197184,
+        "performance": {
+          "1w_return": 6.581928326810282,
+          "1m_return": 25.86437243631343,
+          "3m_return": 26.884629057522357
+        }
+      },
+      "ASML": {
+        "ticker": "ASML",
+        "name": "ASML Holding N.V.",
+        "market_cap": 527325757440,
+        "performance": {
+          "1w_return": 6.036384333749112,
+          "1m_return": 26.255274814458353,
+          "3m_return": 32.2277213783261
+        }
+      },
+      "AMAT": {
+        "ticker": "AMAT",
+        "name": "Applied Materials, Inc.",
+        "market_cap": 260510056448,
+        "performance": {
+          "1w_return": 6.434715583791228,
+          "1m_return": 26.336738677257987,
+          "3m_return": 45.629137178269865
+        }
+      },
+      "LRCX": {
+        "ticker": "LRCX",
+        "name": "Lam Research Corporation",
+        "market_cap": 281159761920,
+        "performance": {
+          "1w_return": 1.1615303485830397,
+          "1m_return": 36.56744714917377,
+          "3m_return": 57.81717327900206
+        }
+      },
+      "TSM": {
+        "ticker": "TSM",
+        "name": "Taiwan Semiconductor Manufacturing Company Limited",
+        "market_cap": 1775859138560,
+        "performance": {
+          "1w_return": 3.2040284639411665,
+          "1m_return": 19.357200029446318,
+          "3m_return": 16.349588329454235
+        }
+      }
+    },
+    "sector_aggregate": {
+      "avg_1w_return": 5.105599802348371,
+      "avg_1m_return": 21.4289652231356,
+      "total_market_cap_T": 7.980424527872
+    },
+    "fetch_time": "2026-01-18T19:07:54.811989"
+  },
+  "relative_strength": {
+    "comparisons": {
+      "QQQ": {
+        "name": "Nasdaq 100 ETF",
+        "1w_return": -0.9423239800329997,
+        "1m_return": 1.6854020698270578,
+        "vs_spy_1w": -0.43884274762431286,
+        "vs_spy_1m": -0.499661606041224
+      },
+      "XLK": {
+        "name": "Technology Select Sector",
+        "1w_return": -0.7970558092912139,
+        "1m_return": 2.30140185162675,
+        "vs_spy_1w": -0.2935745768825271,
+        "vs_spy_1m": 0.11633817575846805
+      },
+      "SMH": {
+        "name": "VanEck Semiconductor ETF",
+        "1w_return": 2.4906596260475755,
+        "1m_return": 14.120552368670491,
+        "vs_spy_1w": 2.9941408584562623,
+        "vs_spy_1m": 11.93548869280221
+      },
+      "ARKK": {
+        "name": "ARK Innovation ETF",
+        "1w_return": -1.0419197974466998,
+        "1m_return": 1.9216382920590025,
+        "vs_spy_1w": -0.538438565038013,
+        "vs_spy_1m": -0.26342538380927927
+      },
+      "BOTZ": {
+        "name": "Global X Robotics & AI ETF",
+        "1w_return": -0.23413151873881155,
+        "1m_return": 7.615504811333418,
+        "vs_spy_1w": 0.26934971366987526,
+        "vs_spy_1m": 5.430441135465136
+      },
+      "AIQ": {
+        "name": "Global X AI & Technology ETF",
+        "1w_return": -1.5239912512450715,
+        "1m_return": 5.044689835431004,
+        "vs_spy_1w": -1.0205100188363847,
+        "vs_spy_1m": 2.8596261595627226
+      }
+    },
+    "tech_sentiment": {
+      "etfs_outperforming_spy": 2,
+      "etfs_total": 6,
+      "sentiment_score": 33.33333333333333,
+      "interpretation": "bearish"
+    }
+  },
+  "fetch_time": "2026-01-18T19:07:54.812022"
+}

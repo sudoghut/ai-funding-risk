@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Funding Risk Early Warning Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+               margin: 0; padding: 20px; background: #1a1a2e; color: #eee; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #fff; border-bottom: 2px solid #4dabf7; padding-bottom: 10px; }
+        h2 { color: #4dabf7; margin-top: 30px; }
+        .alert-panel { padding: 20px; border-radius: 12px; margin: 20px 0;
+                      display: flex; align-items: center; gap: 20px; }
+        .alert-GREEN { background: linear-gradient(135deg, #28a745, #20c997); }
+        .alert-YELLOW { background: linear-gradient(135deg, #ffc107, #fd7e14); color: #1a1a1a; }
+        .alert-ORANGE { background: linear-gradient(135deg, #fd7e14, #dc3545); }
+        .alert-RED { background: linear-gradient(135deg, #dc3545, #c92a2a); }
+        .alert-icon { font-size: 48px; }
+        .alert-content { flex: 1; }
+        .alert-level { font-size: 24px; font-weight: bold; }
+        .alert-description { opacity: 0.9; margin-top: 5px; }
+        .score-display { font-size: 36px; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #16213e; padding: 20px; border-radius: 12px;
+               border: 1px solid #0f3460; }
+        .card h3 { margin-top: 0; color: #4dabf7; font-size: 16px; }
+        .metric { display: flex; justify-content: space-between; padding: 8px 0;
+                 border-bottom: 1px solid #0f3460; }
+        .metric-name { color: #aaa; }
+        .metric-value { font-weight: bold; }
+        .signal-list { margin: 0; padding: 0; list-style: none; }
+        .signal-item { padding: 10px; margin: 5px 0; border-radius: 8px;
+                      background: #0f3460; display: flex; justify-content: space-between;
+                      align-items: center; }
+        .signal-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px;
+                       font-weight: bold; }
+        .badge-GREEN { background: #28a745; }
+        .badge-YELLOW { background: #ffc107; color: #1a1a1a; }
+        .badge-ORANGE { background: #fd7e14; }
+        .badge-RED { background: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
+        th { background: #0f3460; color: #4dabf7; font-weight: 600; }
+        tr:hover { background: #1f4068; }
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        .chart-container { margin: 20px 0; background: #16213e; padding: 20px;
+                          border-radius: 12px; }
+        .chart-container img { max-width: 100%; height: auto; border-radius: 8px; }
+        .recommendation { padding: 12px; margin: 8px 0; background: #1f4068;
+                         border-left: 4px solid #4dabf7; border-radius: 4px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #0f3460;
+                 color: #666; font-size: 12px; text-align: center; }
+        .status-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+        .status-item { background: #0f3460; padding: 8px 16px; border-radius: 8px;
+                      display: flex; align-items: center; gap: 8px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>AI Funding Risk Early Warning Dashboard</h1>
+        <p style="color: #aaa;">Generated: 2026-01-18T19:07:55</p>
+
+        <div class="alert-panel alert-GREEN">
+            <div class="alert-icon">✓</div>
+            <div class="alert-content">
+                <div class="alert-level">Normal - Alert Level</div>
+                <div class="alert-description">Funding environment healthy</div>
+            </div>
+            <div class="score-display">96/100</div>
+        </div>
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>OVERALL HEALTH</h3>
+                <div style="font-size: 36px; font-weight: bold; color: #28a745;">96</div>
+                <div style="color: #aaa; font-size: 12px;">Health Score (0-100)</div>
+            </div>
+
+            <div class="card">
+                <h3>SIGNAL STATUS</h3>
+                <div style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;">
+                    <span style="color: #dc3545;">RED: 0</span>
+                    <span style="color: #fd7e14;">ORANGE: 0</span>
+                    <span style="color: #ffc107;">YELLOW: 1</span>
+                    <span style="color: #28a745;">GREEN: 7</span>
+                </div>
+                <div style="color: #aaa; font-size: 12px;">Warning Signals by Severity</div>
+            </div>
+
+            <div class="card">
+                <h3>FUNDING HEALTH</h3>
+                <div style="font-size: 36px; font-weight: bold; color: #ffc107;">50</div>
+                <div style="color: #aaa; font-size: 12px;">NEUTRAL</div>
+            </div>
+
+            <div class="card">
+                <h3>SUPPLY/DEMAND BALANCE</h3>
+                <div style="font-size: 36px; font-weight: bold; color: #28a745;">1.84x</div>
+                <div style="color: #aaa; font-size: 12px;">Annual Gap: $+478B</div>
+            </div>
+
+        </div>
+
+        <h2>5-Year Supply-Demand Projection</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Demand ($B)</th>
+                    <th>Supply ($B)</th>
+                    <th>Gap ($B)</th>
+                    <th>Status</th>
+                    <th>Risk Level</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td>2026</td>
+                    <td>$566</td>
+                    <td>$1044</td>
+                    <td class="positive">$+478</td>
+                    <td>SURPLUS</td>
+                    <td><span class="signal-badge badge-GREEN">LOW</span></td>
+                </tr>
+
+                <tr>
+                    <td>2027</td>
+                    <td>$708</td>
+                    <td>$1170</td>
+                    <td class="positive">$+462</td>
+                    <td>SURPLUS</td>
+                    <td><span class="signal-badge badge-GREEN">LOW</span></td>
+                </tr>
+
+                <tr>
+                    <td>2028</td>
+                    <td>$885</td>
+                    <td>$1310</td>
+                    <td class="positive">$+425</td>
+                    <td>SURPLUS</td>
+                    <td><span class="signal-badge badge-GREEN">LOW</span></td>
+                </tr>
+
+                <tr>
+                    <td>2029</td>
+                    <td>$1106</td>
+                    <td>$1467</td>
+                    <td class="positive">$+361</td>
+                    <td>SURPLUS</td>
+                    <td><span class="signal-badge badge-GREEN">LOW</span></td>
+                </tr>
+
+                <tr>
+                    <td>2030</td>
+                    <td>$1383</td>
+                    <td>$1643</td>
+                    <td class="positive">$+260</td>
+                    <td>SURPLUS</td>
+                    <td><span class="signal-badge badge-YELLOW">MEDIUM</span></td>
+                </tr>
+
+                <tr>
+                    <td>2031</td>
+                    <td>$1728</td>
+                    <td>$1840</td>
+                    <td class="positive">$+112</td>
+                    <td>SURPLUS</td>
+                    <td><span class="signal-badge badge-YELLOW">MEDIUM</span></td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <h2>Visualizations</h2>
+
+        <div class="chart-container">
+            <h3>Supply-Demand Balance Projection</h3>
+            <img src="supply_demand_projection.png" alt="Supply-Demand Balance Projection">
+        </div>
+
+        <div class="chart-container">
+            <h3>Funding Health Score</h3>
+            <img src="funding_health_gauge.png" alt="Funding Health Score">
+        </div>
+
+        <div class="chart-container">
+            <h3>Credit Market Trends</h3>
+            <img src="credit_market_trends.png" alt="Credit Market Trends">
+        </div>
+
+        <div class="footer">
+            <p>AI Funding Risk Early Warning System - Automated Analysis Report</p>
+            <p>Data sources: SEC EDGAR, FRED (Federal Reserve), Yahoo Finance</p>
+            <p>This report is for informational purposes only and should not be considered financial advice.</p>
+        </div>
+    </div>
+</body>
+</html>

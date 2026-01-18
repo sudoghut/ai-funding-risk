@@ -10,7 +10,7 @@ import sys
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config.settings import RAW_DATA_DIR, PROCESSED_DATA_DIR, TARGET_COMPANIES
+from config.settings import RAW_DATA_DIR, PROCESSED_DATA_DIR, TARGET_COMPANIES, SEC_METRIC_NAMES
 
 
 class DataProcessor:
@@ -73,7 +73,10 @@ class DataProcessor:
                 # Get recent quarterly values (last 8 quarters)
                 quarterly_values = [v for v in sorted_values if v.get("form") == "10-Q"][:8]
 
-                company_metrics[metric_name] = {
+                # Use friendly name if available (e.g., PaymentsToAcquire... -> CapitalExpenditures)
+                output_name = SEC_METRIC_NAMES.get(metric_name, metric_name)
+
+                company_metrics[output_name] = {
                     "annual": [
                         {
                             "year": v.get("fiscal_year"),
@@ -112,9 +115,12 @@ class DataProcessor:
         for company_name, data in sec_processed.items():
             company_derived = {"company": company_name}
 
-            # Get latest values
+            # Get latest values (use friendly names from SEC_METRIC_NAMES mapping)
+            # Try primary Capex tag first, then alternative tag (Nvidia uses PaymentsToAcquireProductiveAssets)
             capex_data = data.get("CapitalExpenditures", {})
-            cashflow_data = data.get("NetCashProvidedByUsedInOperatingActivities", {})
+            if not capex_data.get("annual"):
+                capex_data = data.get("CapitalExpenditures_Alt", {})
+            cashflow_data = data.get("OperatingCashFlow", {}) or data.get("NetCashProvidedByUsedInOperatingActivities", {})
             revenue_data = data.get("Revenues", {})
             debt_data = data.get("LongTermDebt", {})
 
@@ -384,32 +390,61 @@ class DataProcessor:
             derived = data.get("derived_metrics", {})
             yahoo = data.get("yahoo_metrics", {})
 
+            # Calculate capex from Yahoo Finance data (operating_cashflow - free_cashflow)
+            # This is more reliable and consistent with supply_demand.py
+            yahoo_op_cf = yahoo.get("operating_cashflow_B")
+            yahoo_free_cf = yahoo.get("free_cashflow_B")
+            estimated_capex_B = None
+            if yahoo_op_cf is not None and yahoo_free_cf is not None:
+                estimated_capex_B = round(yahoo_op_cf - yahoo_free_cf, 2)
+                if estimated_capex_B < 0:
+                    estimated_capex_B = None  # Invalid
+
+            # Use Yahoo-derived capex/cashflow ratio if available
+            capex_to_cashflow = None
+            if estimated_capex_B and yahoo_op_cf and yahoo_op_cf > 0:
+                capex_to_cashflow = round(estimated_capex_B / yahoo_op_cf, 3)
+            elif derived.get("capex_to_cashflow_ratio"):
+                capex_to_cashflow = derived.get("capex_to_cashflow_ratio")
+
             company_summary = {
                 "name": company_name,
                 "ticker": data.get("ticker"),
-                "capex_to_cashflow": derived.get("capex_to_cashflow_ratio"),
+                "capex_to_cashflow": capex_to_cashflow,
+                "capex_B": estimated_capex_B,
                 "revenue_growth_yoy": derived.get("revenue_growth_yoy"),
                 "debt_growth_yoy": derived.get("debt_growth_yoy"),
                 "market_cap_B": yahoo.get("market_cap_B"),
             }
             summary["companies"].append(company_summary)
 
-            # Aggregate
-            if derived.get("latest_capex"):
-                total_capex += abs(derived["latest_capex"])
-            if derived.get("latest_operating_cashflow"):
-                total_cashflow += derived["latest_operating_cashflow"]
-            if derived.get("latest_debt"):
-                total_debt += derived["latest_debt"]
-            if derived.get("latest_revenue"):
-                total_revenue += derived["latest_revenue"]
+            # Aggregate - use Yahoo data for consistency with supply_demand.py
+            if estimated_capex_B and estimated_capex_B > 0:
+                total_capex += estimated_capex_B
+            elif derived.get("latest_capex"):
+                total_capex += abs(derived["latest_capex"]) / 1e9  # Convert to billions
 
-        # Calculate aggregate metrics
+            if yahoo_op_cf and yahoo_op_cf > 0:
+                total_cashflow += yahoo_op_cf
+            elif derived.get("latest_operating_cashflow"):
+                total_cashflow += derived["latest_operating_cashflow"] / 1e9
+
+            if yahoo.get("total_debt_B"):
+                total_debt += yahoo.get("total_debt_B")
+            elif derived.get("latest_debt"):
+                total_debt += derived["latest_debt"] / 1e9
+
+            if yahoo.get("revenue_B"):
+                total_revenue += yahoo.get("revenue_B")
+            elif derived.get("latest_revenue"):
+                total_revenue += derived["latest_revenue"] / 1e9
+
+        # Calculate aggregate metrics (values already in billions from Yahoo)
         summary["aggregate_metrics"] = {
-            "total_capex_B": round(total_capex / 1e9, 2),
-            "total_operating_cashflow_B": round(total_cashflow / 1e9, 2),
-            "total_debt_B": round(total_debt / 1e9, 2),
-            "total_revenue_B": round(total_revenue / 1e9, 2),
+            "total_capex_B": round(total_capex, 2),
+            "total_operating_cashflow_B": round(total_cashflow, 2),
+            "total_debt_B": round(total_debt, 2),
+            "total_revenue_B": round(total_revenue, 2),
             "aggregate_capex_to_cashflow": (
                 round(total_capex / total_cashflow, 3) if total_cashflow > 0 else None
             ),

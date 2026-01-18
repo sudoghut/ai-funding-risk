@@ -32,6 +32,7 @@ class RiskIndicator:
     risk_level: str
     score: float  # 0-100, higher = more risk
     description: str
+    is_estimated: bool = False  # True if value is null and score is default
 
 
 @dataclass
@@ -43,6 +44,8 @@ class CompanyRiskProfile:
     risk_level: str
     indicators: List[Dict]
     summary: str
+    data_quality: str = "high"  # high, medium, low
+    missing_indicators: int = 0
 
 
 @dataclass
@@ -58,6 +61,7 @@ class SystemicRiskAssessment:
     macro_factors: Dict
     key_findings: List[str]
     recommendations: List[str]
+    data_quality_summary: Dict = None  # Summary of data quality across companies
 
 
 class RiskCalculator:
@@ -84,7 +88,7 @@ class RiskCalculator:
         threshold_normal: float,
         threshold_warning: float,
         inverse: bool = False
-    ) -> Tuple[float, str]:
+    ) -> Tuple[float, str, bool]:
         """
         Calculate risk score for a single indicator
 
@@ -95,15 +99,16 @@ class RiskCalculator:
             inverse: If True, lower values = higher risk
 
         Returns:
-            Tuple of (score 0-100, risk_level string)
+            Tuple of (score 0-100, risk_level string, is_estimated bool)
         """
         if value is None:
-            return 50.0, "MEDIUM"  # Unknown = medium risk
+            # Return estimated flag to indicate low confidence
+            return 50.0, "MEDIUM", True  # Unknown = medium risk, is_estimated=True
 
         if inverse:
             # For inverse metrics, flip the logic
             if value > threshold_normal:
-                return 20.0, "LOW"
+                return 20.0, "LOW", False
             elif value > threshold_warning:
                 # Linear interpolation in warning zone
                 range_size = threshold_normal - threshold_warning
@@ -112,13 +117,13 @@ class RiskCalculator:
                     score = 30 + (progress * 40)
                 else:
                     score = 50
-                return score, "MEDIUM"
+                return score, "MEDIUM", False
             else:
-                return 80.0, "HIGH"
+                return 80.0, "HIGH", False
         else:
             # Normal logic: higher value = higher risk
             if value < threshold_normal:
-                return 20.0, "LOW"
+                return 20.0, "LOW", False
             elif value < threshold_warning:
                 # Linear interpolation in warning zone
                 range_size = threshold_warning - threshold_normal
@@ -127,9 +132,9 @@ class RiskCalculator:
                     score = 30 + (progress * 40)
                 else:
                     score = 50
-                return score, "MEDIUM"
+                return score, "MEDIUM", False
             else:
-                return 80.0, "HIGH"
+                return 80.0, "HIGH", False
 
     def assess_company_risk(
         self, company_name: str, company_data: Dict
@@ -148,14 +153,17 @@ class RiskCalculator:
         derived = company_data.get("derived_metrics", {})
         yahoo = company_data.get("yahoo_metrics", {})
         ticker = company_data.get("ticker", "")
+        missing_count = 0
 
         # 1. Capex to Cash Flow Ratio (Consumption indicator)
         capex_ratio = derived.get("capex_to_cashflow_ratio")
-        score, level = self.calculate_indicator_score(
+        score, level, is_estimated = self.calculate_indicator_score(
             capex_ratio,
             self.thresholds["capex_to_cashflow"]["normal"],
             self.thresholds["capex_to_cashflow"]["warning"]
         )
+        if is_estimated:
+            missing_count += 1
         indicators.append(RiskIndicator(
             name="Capex to Cash Flow Ratio",
             category="consumption",
@@ -164,16 +172,19 @@ class RiskCalculator:
             threshold_high=self.thresholds["capex_to_cashflow"]["warning"],
             risk_level=level,
             score=score,
-            description=f"Capital expenditure as percentage of operating cash flow"
+            description="Capital expenditure as percentage of operating cash flow",
+            is_estimated=is_estimated
         ))
 
         # 2. Debt to Revenue Growth Ratio
         debt_rev_ratio = derived.get("debt_to_revenue_growth_ratio")
-        score, level = self.calculate_indicator_score(
+        score, level, is_estimated = self.calculate_indicator_score(
             debt_rev_ratio,
             self.thresholds["debt_to_revenue_growth"]["normal"],
             self.thresholds["debt_to_revenue_growth"]["warning"]
         )
+        if is_estimated:
+            missing_count += 1
         indicators.append(RiskIndicator(
             name="Debt vs Revenue Growth",
             category="efficiency",
@@ -182,16 +193,15 @@ class RiskCalculator:
             threshold_high=self.thresholds["debt_to_revenue_growth"]["warning"],
             risk_level=level,
             score=score,
-            description="Debt growth relative to revenue growth"
+            description="Debt growth relative to revenue growth",
+            is_estimated=is_estimated
         ))
 
         # 3. Capex Growth Rate (Higher = more aggressive spending)
         capex_growth = derived.get("capex_growth_yoy")
-        if capex_growth is not None:
-            # Consider >30% growth as warning, >50% as high risk
-            score, level = self.calculate_indicator_score(capex_growth, 30, 50)
-        else:
-            score, level = 50.0, "MEDIUM"
+        score, level, is_estimated = self.calculate_indicator_score(capex_growth, 30, 50)
+        if is_estimated:
+            missing_count += 1
         indicators.append(RiskIndicator(
             name="Capex Growth Rate",
             category="consumption",
@@ -200,18 +210,17 @@ class RiskCalculator:
             threshold_high=50,
             risk_level=level,
             score=score,
-            description="Year-over-year growth in capital expenditure (%)"
+            description="Year-over-year growth in capital expenditure (%)",
+            is_estimated=is_estimated
         ))
 
         # 4. Revenue Growth (positive signal - inverse scoring)
         revenue_growth = derived.get("revenue_growth_yoy")
-        if revenue_growth is not None:
-            # Higher growth = lower risk (inverse)
-            score, level = self.calculate_indicator_score(
-                revenue_growth, 10, 5, inverse=True
-            )
-        else:
-            score, level = 50.0, "MEDIUM"
+        score, level, is_estimated = self.calculate_indicator_score(
+            revenue_growth, 10, 5, inverse=True
+        )
+        if is_estimated:
+            missing_count += 1
         indicators.append(RiskIndicator(
             name="Revenue Growth",
             category="efficiency",
@@ -220,16 +229,15 @@ class RiskCalculator:
             threshold_high=5,
             risk_level=level,
             score=score,
-            description="Year-over-year revenue growth (%)"
+            description="Year-over-year revenue growth (%)",
+            is_estimated=is_estimated
         ))
 
         # 5. Debt to Cash Ratio (from Yahoo)
         debt_cash_ratio = yahoo.get("debt_to_cash_ratio")
-        if debt_cash_ratio is not None:
-            # Consider >3x debt to cash as warning, >5x as high risk
-            score, level = self.calculate_indicator_score(debt_cash_ratio, 3, 5)
-        else:
-            score, level = 50.0, "MEDIUM"
+        score, level, is_estimated = self.calculate_indicator_score(debt_cash_ratio, 3, 5)
+        if is_estimated:
+            missing_count += 1
         indicators.append(RiskIndicator(
             name="Debt to Cash Ratio",
             category="supply",
@@ -238,7 +246,8 @@ class RiskCalculator:
             threshold_high=5,
             risk_level=level,
             score=score,
-            description="Total debt relative to total cash holdings"
+            description="Total debt relative to total cash holdings",
+            is_estimated=is_estimated
         ))
 
         # Calculate overall score (weighted average)
@@ -266,14 +275,25 @@ class RiskCalculator:
         else:
             overall_level = "HIGH"
 
+        # Determine data quality based on missing indicators
+        total_indicators = len(indicators)
+        if missing_count == 0:
+            data_quality = "high"
+        elif missing_count <= 2:
+            data_quality = "medium"
+        else:
+            data_quality = "low"
+
         # Generate summary
         high_risk_indicators = [i for i in indicators if i.risk_level == "HIGH"]
+        quality_note = f" (data quality: {data_quality}, {missing_count}/{total_indicators} estimated)" if missing_count > 0 else ""
+
         if high_risk_indicators:
-            summary = f"Elevated risk due to: {', '.join([i.name for i in high_risk_indicators])}"
+            summary = f"Elevated risk due to: {', '.join([i.name for i in high_risk_indicators])}{quality_note}"
         elif weighted_score < 40:
-            summary = "Healthy financial position with sustainable spending patterns"
+            summary = f"Healthy financial position with sustainable spending patterns{quality_note}"
         else:
-            summary = "Moderate risk profile - monitor key indicators"
+            summary = f"Moderate risk profile - monitor key indicators{quality_note}"
 
         return CompanyRiskProfile(
             company_name=company_name,
@@ -281,7 +301,9 @@ class RiskCalculator:
             overall_risk_score=round(weighted_score, 1),
             risk_level=overall_level,
             indicators=[asdict(i) for i in indicators],
-            summary=summary
+            summary=summary,
+            data_quality=data_quality,
+            missing_indicators=missing_count
         )
 
     def assess_macro_environment(self, macro_data: Dict) -> Dict:
@@ -304,7 +326,7 @@ class RiskCalculator:
         fed_funds = macro_data.get("FEDFUNDS", {})
         if fed_funds:
             rate = fed_funds.get("latest_value", 0)
-            score, level = self.calculate_indicator_score(
+            score, level, _ = self.calculate_indicator_score(
                 rate,
                 self.thresholds["interest_rate"]["normal"],
                 self.thresholds["interest_rate"]["warning"]
@@ -324,7 +346,7 @@ class RiskCalculator:
         baa_spread = macro_data.get("BAA10Y", {})
         if baa_spread:
             spread = baa_spread.get("latest_value", 0)
-            score, level = self.calculate_indicator_score(
+            score, level, _ = self.calculate_indicator_score(
                 spread,
                 self.thresholds["credit_spread"]["normal"],
                 self.thresholds["credit_spread"]["warning"]
@@ -345,7 +367,7 @@ class RiskCalculator:
         if hy_spread:
             spread = hy_spread.get("latest_value", 0)
             # High yield considered elevated if >4%, high risk if >6%
-            score, level = self.calculate_indicator_score(spread, 4, 6)
+            score, level, _ = self.calculate_indicator_score(spread, 4, 6)
             macro_assessment["indicators"]["high_yield_spread"] = {
                 "value": spread,
                 "risk_level": level,
@@ -439,10 +461,35 @@ class RiskCalculator:
         else:
             risk_level = "HIGH"
 
+        # Generate data quality summary
+        total_companies = len(company_profiles)
+        high_quality = sum(1 for p in company_profiles if p.get("data_quality") == "high")
+        medium_quality = sum(1 for p in company_profiles if p.get("data_quality") == "medium")
+        low_quality = sum(1 for p in company_profiles if p.get("data_quality") == "low")
+        total_missing = sum(p.get("missing_indicators", 0) for p in company_profiles)
+        total_indicators = total_companies * 5  # 5 indicators per company
+
+        data_quality_summary = {
+            "overall_quality": "high" if high_quality > total_companies / 2 else ("medium" if low_quality < total_companies / 2 else "low"),
+            "companies_by_quality": {
+                "high": high_quality,
+                "medium": medium_quality,
+                "low": low_quality,
+            },
+            "total_missing_values": total_missing,
+            "total_indicators": total_indicators,
+            "data_completeness_pct": round((1 - total_missing / total_indicators) * 100, 1) if total_indicators > 0 else 0,
+            "confidence_note": "Scores with missing data use neutral estimates (50) and may not reflect actual risk" if total_missing > 0 else "All indicators have actual data"
+        }
+
         # Generate key findings
         key_findings = self._generate_key_findings(
             company_profiles, macro_assessment, consumption_score, supply_score
         )
+
+        # Add data quality finding if needed
+        if data_quality_summary["data_completeness_pct"] < 80:
+            key_findings.insert(0, f"Data quality note: {data_quality_summary['data_completeness_pct']}% data completeness - {total_missing} indicators estimated")
 
         # Generate recommendations
         recommendations = self._generate_recommendations(
@@ -459,7 +506,8 @@ class RiskCalculator:
             company_profiles=company_profiles,
             macro_factors=macro_assessment,
             key_findings=key_findings,
-            recommendations=recommendations
+            recommendations=recommendations,
+            data_quality_summary=data_quality_summary
         )
 
     def _generate_key_findings(
@@ -482,15 +530,46 @@ class RiskCalculator:
                 f"High risk identified for: {', '.join(high_risk_companies)}"
             )
 
-        # Consumption vs Supply imbalance
-        if consumption_score > supply_score + 15:
-            findings.append(
-                "Capital consumption rate exceeds sustainable supply indicators"
-            )
-        elif supply_score > consumption_score + 15:
-            findings.append(
-                "Strong funding supply relative to consumption - favorable conditions"
-            )
+        # Load supply-demand analysis for cross-validation if available
+        supply_demand_file = self.processed_dir / "supply_demand_analysis.json"
+        supply_demand_data = None
+        if supply_demand_file.exists():
+            try:
+                with open(supply_demand_file, "r", encoding="utf-8") as f:
+                    supply_demand_data = json.load(f)
+            except Exception:
+                pass
+
+        # Use supply-demand analysis if available for accurate assessment
+        if supply_demand_data:
+            balance = supply_demand_data.get("balance_analysis", {})
+            balance_ratio = balance.get("balance_ratio", 1.0)
+            gap = balance.get("gap_annual_B", 0)
+
+            if balance_ratio >= 1.5:
+                findings.append(
+                    f"Strong funding surplus: supply is {balance_ratio:.1f}x demand (gap: +${gap:.0f}B)"
+                )
+            elif balance_ratio >= 1.0:
+                findings.append(
+                    f"Adequate funding balance: supply meets demand ({balance_ratio:.1f}x)"
+                )
+            else:
+                findings.append(
+                    f"Funding pressure: demand exceeds supply ({balance_ratio:.1f}x, gap: ${gap:.0f}B)"
+                )
+        else:
+            # Fallback to risk score comparison
+            # Note: These are RISK scores (higher = more risky), not actual amounts
+            # consumption_score > supply_score means consumption is riskier
+            if consumption_score > supply_score + 15:
+                findings.append(
+                    "Elevated consumption risk relative to supply risk indicators"
+                )
+            elif supply_score > consumption_score + 15:
+                findings.append(
+                    "Supply risk elevated - monitor funding availability"
+                )
 
         # Macro environment
         env = macro_assessment.get("overall_funding_environment", "neutral")
