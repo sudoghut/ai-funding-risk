@@ -86,6 +86,133 @@ class SupplyDemandAnalyzer:
 
         return data
 
+    def _calculate_aggregate_growth_rate(self, consolidated: Dict, metric_key: str = "capex") -> float:
+        """
+        Calculate aggregate growth rate from SEC data by summing all companies' values
+        and computing YoY change on the total.
+
+        This method calculates the growth rate of the TOTAL across all companies,
+        which better reflects the overall industry trend than averaging individual
+        company growth rates.
+
+        Args:
+            consolidated: Consolidated company data
+            metric_key: 'capex' or 'ocf'
+
+        Returns:
+            Aggregate growth rate based on total values
+        """
+        companies = consolidated.get("companies", {})
+
+        # Collect yearly totals
+        yearly_totals = {}
+
+        for company_name, company_data in companies.items():
+            sec = company_data.get("sec_metrics", {})
+
+            if metric_key == "capex":
+                # Get CapEx data (prefer Alt which has more recent data)
+                data = sec.get("CapitalExpenditures_Alt", {}).get("annual", [])
+                if not data:
+                    data = sec.get("CapitalExpenditures", {}).get("annual", [])
+            elif metric_key == "ocf":
+                data = sec.get("OperatingCashFlow", {}).get("annual", [])
+            else:
+                data = []
+
+            # Deduplicate and aggregate by year
+            seen_years = set()
+            for item in data:
+                year = item.get("year")
+                value = item.get("value", 0)
+                if year and year not in seen_years and value > 0:
+                    seen_years.add(year)
+                    if year not in yearly_totals:
+                        yearly_totals[year] = 0
+                    yearly_totals[year] += value / 1e9  # Convert to billions
+
+        # Get complete years with substantial data
+        # For OCF: >$200B (6 companies should have ~$250B+)
+        # For CapEx: >$90B (5-6 companies should have ~$100B+)
+        current_year = self.base_year
+        threshold = 200 if metric_key == "ocf" else 90
+        complete_years = sorted([y for y in yearly_totals.keys()
+                                 if y < current_year and yearly_totals[y] > threshold], reverse=True)
+
+        if len(complete_years) < 2:
+            return 0.30  # Fallback default
+
+        # Calculate average growth rate over recent years
+        growth_rates = []
+        for i in range(min(3, len(complete_years) - 1)):  # Up to 3 years of growth
+            curr_year = complete_years[i]
+            prev_year = complete_years[i + 1]
+            curr_val = yearly_totals[curr_year]
+            prev_val = yearly_totals[prev_year]
+            if prev_val > 0:
+                growth = (curr_val - prev_val) / prev_val
+                growth_rates.append(growth)
+
+        if not growth_rates:
+            return 0.30  # Fallback default
+
+        # Return average of recent growth rates
+        avg_growth = sum(growth_rates) / len(growth_rates)
+        return round(avg_growth, 3)
+
+    def _calculate_historical_growth_rate(self, consolidated: Dict, metric_key: str = "capex") -> float:
+        """
+        Calculate historical growth rate - now uses aggregate method for consistency
+        with historical data display.
+
+        Args:
+            consolidated: Consolidated company data
+            metric_key: 'capex', 'revenue', or 'fcf'
+
+        Returns:
+            Aggregate growth rate based on actual historical data
+        """
+        if metric_key == "capex":
+            return self._calculate_aggregate_growth_rate(consolidated, "capex")
+        elif metric_key == "ocf":
+            return self._calculate_aggregate_growth_rate(consolidated, "ocf")
+        else:
+            # Fallback to original weighted average for other metrics
+            growth_rates = []
+            weights = []
+
+            for company_name, company_data in consolidated.get("companies", {}).items():
+                derived = company_data.get("derived_metrics", {})
+                yahoo = company_data.get("yahoo_metrics", {})
+
+                if metric_key == "revenue":
+                    growth = derived.get("revenue_growth_yoy")
+                else:
+                    growth = None
+
+                weight = yahoo.get("market_cap_B", 100)
+
+                if growth is not None and -100 < growth < 500:
+                    growth_rates.append(growth / 100)
+                    weights.append(weight)
+
+            if not growth_rates:
+                return 0.25
+
+            total_weight = sum(weights)
+            weighted_avg = sum(g * w for g, w in zip(growth_rates, weights)) / total_weight
+            return round(weighted_avg, 3)
+
+    def _calculate_fcf_growth_rate(self, consolidated: Dict) -> float:
+        """
+        Calculate supply growth rate using aggregate OCF growth.
+
+        Uses operating cash flow as the base for supply capacity growth,
+        calculated as total OCF YoY change across all companies.
+        """
+        # Use aggregate OCF growth for consistency with historical data
+        return self._calculate_aggregate_growth_rate(consolidated, "ocf")
+
     def calculate_demand_metrics(self, consolidated: Dict) -> DemandMetrics:
         """
         Calculate AI sector capital demand metrics
@@ -123,8 +250,8 @@ class SupplyDemandAnalyzer:
         # Calculate ratios
         capex_to_cf = total_capex / total_operating_cf if total_operating_cf > 0 else 0
 
-        # Estimate growth rate from scenarios or use default
-        capex_growth = 0.25  # Default 25% growth assumption
+        # Calculate growth rate from actual historical data instead of hardcoding
+        capex_growth = self._calculate_historical_growth_rate(consolidated, "capex")
 
         # Calculate implied annual demand
         # Current capex + projected growth
@@ -218,7 +345,8 @@ class SupplyDemandAnalyzer:
         self,
         demand: DemandMetrics,
         supply: SupplyMetrics,
-        scenarios: Dict = None
+        scenarios: Dict = None,
+        consolidated: Dict = None
     ) -> BalanceAnalysis:
         """
         Analyze supply-demand balance
@@ -227,6 +355,7 @@ class SupplyDemandAnalyzer:
             demand: Demand metrics
             supply: Supply metrics
             scenarios: Scenario projections (optional)
+            consolidated: Consolidated data for calculating supply growth
 
         Returns:
             BalanceAnalysis with complete analysis
@@ -238,8 +367,11 @@ class SupplyDemandAnalyzer:
         gap = supply.implied_funding_capacity_B - demand.implied_annual_demand_B
 
         # Calculate runway (years until supply exhausted at current growth)
-        # Simplified model: supply grows at ~12%, demand at ~25%
-        supply_growth = 0.12
+        # Use historical data to calculate supply growth instead of hardcoding
+        if consolidated:
+            supply_growth = self._calculate_fcf_growth_rate(consolidated)
+        else:
+            supply_growth = 0.12  # Fallback only if no data
         demand_growth = demand.capex_growth_rate
 
         if demand_growth > supply_growth:
@@ -343,23 +475,131 @@ class SupplyDemandAnalyzer:
 
         return findings
 
+    def calculate_historical_supply_demand(self, consolidated: Dict) -> List[Dict]:
+        """
+        Calculate historical supply-demand data from SEC filings
+
+        Args:
+            consolidated: Consolidated company data
+
+        Returns:
+            List of historical yearly data with actual growth rates
+        """
+        companies = consolidated.get("companies", {})
+
+        # Collect annual data by year
+        yearly_capex = {}  # year -> total capex
+        yearly_ocf = {}    # year -> total operating cash flow
+
+        for company_name, company_data in companies.items():
+            sec = company_data.get("sec_metrics", {})
+
+            # Get CapEx data (prefer CapitalExpenditures_Alt which has more recent data)
+            capex_data = sec.get("CapitalExpenditures_Alt", {}).get("annual", [])
+            if not capex_data:
+                capex_data = sec.get("CapitalExpenditures", {}).get("annual", [])
+
+            # Deduplicate and aggregate by year
+            seen_years = set()
+            for item in capex_data:
+                year = item.get("year")
+                value = item.get("value", 0)
+                if year and year not in seen_years and value > 0:
+                    seen_years.add(year)
+                    if year not in yearly_capex:
+                        yearly_capex[year] = 0
+                    yearly_capex[year] += value / 1e9  # Convert to billions
+
+            # Get Operating Cash Flow data
+            ocf_data = sec.get("OperatingCashFlow", {}).get("annual", [])
+            seen_years = set()
+            for item in ocf_data:
+                year = item.get("year")
+                value = item.get("value", 0)
+                if year and year not in seen_years and value > 0:
+                    seen_years.add(year)
+                    if year not in yearly_ocf:
+                        yearly_ocf[year] = 0
+                    yearly_ocf[year] += value / 1e9
+
+        # Build historical records for recent years
+        current_year = self.base_year
+        historical = []
+
+        # Get sorted years that have both capex and ocf data
+        common_years = sorted(set(yearly_capex.keys()) & set(yearly_ocf.keys()), reverse=True)
+
+        # Take recent complete years with substantial data
+        # CapEx threshold: >$90B (5-6 companies)
+        # OCF threshold: >$200B (6 companies)
+        # This ensures we're comparing years with similar company coverage
+        recent_years = [y for y in common_years
+                        if y < current_year
+                        and yearly_capex.get(y, 0) > 90
+                        and yearly_ocf.get(y, 0) > 200][:5]  # Up to 5 years of history
+        recent_years = sorted(recent_years)  # Sort ascending
+
+        prev_demand = None
+        prev_supply = None
+
+        for year in recent_years:
+            demand = yearly_capex.get(year, 0)
+            # Supply approximation: OCF + estimated debt/equity capacity
+            # Use a multiplier similar to how implied_funding_capacity is calculated
+            ocf = yearly_ocf.get(year, 0)
+            supply = ocf * 1.6  # Approximate total capacity
+
+            # Calculate YoY growth rates
+            demand_growth = None
+            supply_growth = None
+            if prev_demand and prev_demand > 0:
+                demand_growth = round((demand - prev_demand) / prev_demand * 100, 1)
+            if prev_supply and prev_supply > 0:
+                supply_growth = round((supply - prev_supply) / prev_supply * 100, 1)
+
+            gap = supply - demand
+            balance_ratio = supply / demand if demand > 0 else 1
+
+            historical.append({
+                "year": year,
+                "demand_B": round(demand, 1),
+                "supply_B": round(supply, 1),
+                "gap_B": round(gap, 1),
+                "balance_ratio": round(balance_ratio, 2),
+                "status": "surplus" if gap > 0 else "deficit",
+                "risk_level": "LOW" if balance_ratio > 1.2 else ("MEDIUM" if balance_ratio > 0.9 else "HIGH"),
+                "demand_growth_pct": demand_growth,
+                "supply_growth_pct": supply_growth,
+                "is_historical": True
+            })
+
+            prev_demand = demand
+            prev_supply = supply
+
+        return historical
+
     def project_balance(
         self,
         demand: DemandMetrics,
         supply: SupplyMetrics,
         years: int = 5,
         demand_growth: float = None,
-        supply_growth: float = 0.12
+        supply_growth: float = None,
+        consolidated: Dict = None,
+        historical: List[Dict] = None
     ) -> List[Dict]:
         """
-        Project supply-demand balance over multiple years
+        Project supply-demand balance over multiple years, starting from
+        the last historical year's data.
 
         Args:
             demand: Current demand metrics
             supply: Current supply metrics
             years: Years to project
             demand_growth: Demand growth rate (defaults to demand.capex_growth_rate)
-            supply_growth: Supply growth rate
+            supply_growth: Supply growth rate (calculated from historical data if None)
+            consolidated: Consolidated data for calculating supply growth
+            historical: Historical data to continue from
 
         Returns:
             List of yearly projections
@@ -367,15 +607,36 @@ class SupplyDemandAnalyzer:
         if demand_growth is None:
             demand_growth = demand.capex_growth_rate
 
+        # Calculate supply growth from historical data if not provided
+        if supply_growth is None:
+            if consolidated:
+                supply_growth = self._calculate_fcf_growth_rate(consolidated)
+            else:
+                supply_growth = 0.12  # Fallback default
+
         projections = []
-        current_demand = demand.implied_annual_demand_B
-        current_supply = supply.implied_funding_capacity_B
+
+        # Start from the last historical data point if available
+        if historical and len(historical) > 0:
+            last_hist = historical[-1]
+            start_year = last_hist["year"] + 1
+            current_demand = last_hist["demand_B"] * (1 + demand_growth)
+            current_supply = last_hist["supply_B"] * (1 + supply_growth)
+        else:
+            # Fallback to original behavior
+            start_year = self.base_year
+            current_demand = demand.implied_annual_demand_B
+            current_supply = supply.implied_funding_capacity_B
 
         for year in range(years + 1):
-            projection_year = self.base_year + year
+            projection_year = start_year + year
 
             balance_ratio = current_supply / current_demand if current_demand > 0 else 1
             gap = current_supply - current_demand
+
+            # Show projected growth rate for all years
+            proj_demand_growth = round(demand_growth * 100, 1)
+            proj_supply_growth = round(supply_growth * 100, 1)
 
             projections.append({
                 "year": projection_year,
@@ -385,6 +646,9 @@ class SupplyDemandAnalyzer:
                 "balance_ratio": round(balance_ratio, 2),
                 "status": "surplus" if gap > 0 else "deficit",
                 "risk_level": "LOW" if balance_ratio > 1.2 else ("MEDIUM" if balance_ratio > 0.9 else "HIGH"),
+                "demand_growth_pct": proj_demand_growth,
+                "supply_growth_pct": proj_supply_growth,
+                "is_historical": False
             })
 
             # Project forward
@@ -415,27 +679,40 @@ class SupplyDemandAnalyzer:
         demand = self.calculate_demand_metrics(data["consolidated"])
         print(f"  Total Capex: ${demand.total_capex_B:.1f}B")
         print(f"  Capex/CF Ratio: {demand.capex_to_cf_ratio:.1%}")
+        print(f"  Demand Growth Rate: {demand.capex_growth_rate:.1%} (from historical data)")
         print(f"  Demand Intensity: {demand.demand_intensity}")
 
         print("\nCalculating supply metrics...")
         credit_data = data.get("credit", {})
         supply = self.calculate_supply_metrics(data["consolidated"], credit_data)
+        supply_growth = self._calculate_fcf_growth_rate(data["consolidated"])
         print(f"  Total Cash Holdings: ${supply.total_cash_holdings_B:.1f}B")
         print(f"  Annual FCF: ${supply.total_free_cashflow_B:.1f}B")
         print(f"  Implied Capacity: ${supply.implied_funding_capacity_B:.1f}B")
+        print(f"  Supply Growth Rate: {supply_growth:.1%} (from historical data)")
         print(f"  Supply Conditions: {supply.supply_conditions}")
 
         print("\nAnalyzing balance...")
-        balance = self.analyze_balance(demand, supply, data.get("scenarios"))
+        # Pass consolidated data for calculating supply growth from historical data
+        balance = self.analyze_balance(demand, supply, data.get("scenarios"), data["consolidated"])
+
+        print("\nCalculating historical data...")
+        historical = self.calculate_historical_supply_demand(data["consolidated"])
 
         print("\nProjecting forward...")
-        projections = self.project_balance(demand, supply, years=5)
+        # Pass historical data to continue projection from last historical year
+        projections = self.project_balance(
+            demand, supply, years=5,
+            consolidated=data["consolidated"],
+            historical=historical
+        )
 
         result = {
             "timestamp": datetime.now().isoformat(),
             "demand_metrics": asdict(demand),
             "supply_metrics": asdict(supply),
             "balance_analysis": asdict(balance),
+            "historical": historical,
             "projections": projections,
         }
 

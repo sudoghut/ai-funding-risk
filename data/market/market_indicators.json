@@ -19,7 +19,7 @@
       "total_assets": null,
       "ytd_return": null,
       "beta": null,
-      "fetch_time": "2026-01-18T19:07:33.696329"
+      "fetch_time": "2026-01-18T21:31:43.479280"
     },
     "history": [
       {
@@ -597,7 +597,7 @@
         "total_assets": 712072560640,
         "ytd_return": 17.7547,
         "beta": 1.0,
-        "fetch_time": "2026-01-18T19:07:34.783281"
+        "fetch_time": "2026-01-18T21:31:44.622627"
       },
       "performance": {
         "1d_return": -0.08378844014015341,
@@ -634,7 +634,7 @@
         "total_assets": 407171629056,
         "ytd_return": 20.76833,
         "beta": 1.15,
-        "fetch_time": "2026-01-18T19:07:35.698463"
+        "fetch_time": "2026-01-18T21:31:45.579876"
       },
       "performance": {
         "1d_return": -0.08363400346551586,
@@ -671,7 +671,7 @@
         "total_assets": 92476678144,
         "ytd_return": 24.60421,
         "beta": 1.21,
-        "fetch_time": "2026-01-18T19:07:36.610446"
+        "fetch_time": "2026-01-18T21:31:46.552260"
       },
       "performance": {
         "1d_return": 0.10998789765974681,
@@ -708,7 +708,7 @@
         "total_assets": 37268475904,
         "ytd_return": 49.16406,
         "beta": 1.64,
-        "fetch_time": "2026-01-18T19:07:37.509462"
+        "fetch_time": "2026-01-18T21:31:47.446712"
       },
       "performance": {
         "1d_return": 1.0040137608940292,
@@ -745,7 +745,7 @@
         "total_assets": 17523822592,
         "ytd_return": 40.70879,
         "beta": 1.72,
-        "fetch_time": "2026-01-18T19:07:38.387811"
+        "fetch_time": "2026-01-18T21:31:48.330837"
       },
       "performance": {
         "1d_return": 1.5568471564543884,
@@ -782,7 +782,7 @@
         "total_assets": 7906854400,
         "ytd_return": 5.61529,
         "beta": 1.27,
-        "fetch_time": "2026-01-18T19:07:39.288692"
+        "fetch_time": "2026-01-18T21:31:49.234921"
       },
       "performance": {
         "1d_return": -1.4732423719052368,
@@ -819,7 +819,7 @@
         "total_assets": 6974854656,
         "ytd_return": 35.57994,
         "beta": 2.81,
-        "fetch_time": "2026-01-18T19:07:40.194185"
+        "fetch_time": "2026-01-18T21:31:50.176149"
       },
       "performance": {
         "1d_return": -0.30513853175734296,
@@ -856,7 +856,7 @@
         "total_assets": 3162844928,
         "ytd_return": 13.70655,
         "beta": 1.62,
-        "fetch_time": "2026-01-18T19:07:41.063355"
+        "fetch_time": "2026-01-18T21:31:51.102009"
       },
       "performance": {
         "1d_return": 0.026078042497168497,
@@ -893,7 +893,7 @@
         "total_assets": 7364290560,
         "ytd_return": 32.03525,
         "beta": 1.41,
-        "fetch_time": "2026-01-18T19:07:41.939158"
+        "fetch_time": "2026-01-18T21:31:51.971177"
       },
       "performance": {
         "1d_return": -0.03819797083752796,
@@ -930,7 +930,7 @@
         "total_assets": 139223296,
         "ytd_return": 5.35875,
         "beta": 1.7,
-        "fetch_time": "2026-01-18T19:07:42.817213"
+        "fetch_time": "2026-01-18T21:31:52.844223"
       },
       "performance": {
         "1d_return": 0.8801302560803359,
@@ -967,7 +967,7 @@
         "total_assets": 352384516096,
         "ytd_return": 19.43992,
         "beta": 1.21,
-        "fetch_time": "2026-01-18T19:07:43.696455"
+        "fetch_time": "2026-01-18T21:31:53.724521"
       },
       "performance": {
         "1d_return": -0.10296752481945282,
@@ -1004,7 +1004,7 @@
         "total_assets": 217683984384,
         "ytd_return": 15.27378,
         "beta": 0.78,
-        "fetch_time": "2026-01-18T19:07:44.591152"
+        "fetch_time": "2026-01-18T21:31:54.631271"
       },
       "performance": {
         "1d_return": -0.02016458050674297,
@@ -1043,7 +1043,7 @@
           "total_assets": null,
           "ytd_return": null,
           "beta": 1.376,
-          "fetch_time": "2026-01-18T19:07:45.284245"
+          "fetch_time": "2026-01-18T21:31:55.314864"
         },
         "performance": {
           "1d_return": 0.39466053837939885,
@@ -1073,7 +1073,7 @@
           "total_assets": null,
           "ytd_return": null,
           "beta": 1.073,
-          "fetch_time": "2026-01-18T19:07:45.935513"
+          "fetch_time": "2026-01-18T21:31:55.964858"
         },
         "performance": {
           "1d_return": 0.7007361415038327,
@@ -1103,7 +1103,7 @@
           "total_assets": null,
           "ytd_return": null,
           "beta": 1.086,
-          "fetch_time": "2026-01-18T19:07:46.618640"
+          "fetch_time": "2026-01-18T21:31:56.639081"
         },
         "performance": {
           "1d_return": -0.8464423379820785,
@@ -1133,7 +1133,7 @@
           "total_assets": null,
           "ytd_return": null,
           "beta": 1.287,
-          "fetch_time": "2026-01-18T19:07:47.272278"
+          "fetch_time": "2026-01-18T21:31:57.361107"
         },
         "performance": {
           "1d_return": -0.08859339622798723,
@@ -1163,7 +1163,7 @@
           "total_assets": null,
           "ytd_return": null,
           "beta": 1.651,
-          "fetch_time": "2026-01-18T19:07:47.974198"
+          "fetch_time": "2026-01-18T21:31:58.057404"
         },
         "performance": {
           "1d_return": 0.6531420566291191,
@@ -1193,7 +1193,7 @@
           "total_assets": null,
           "ytd_return": null,
           "beta": 2.314,
-          "fetch_time": "2026-01-18T19:07:48.646870"
+          "fetch_time": "2026-01-18T21:31:58.749067"
         },
         "performance": {
           "1d_return": -0.43838936692871533,
@@ -1210,7 +1210,7 @@
       "stocks_positive": 1,
       "stocks_negative": 5
     },
-    "fetch_time": "2026-01-18T19:07:48.890329"
+    "fetch_time": "2026-01-18T21:31:59.053889"
   },
   "semiconductor": {
     "stocks": {
@@ -1290,7 +1290,7 @@
       "avg_1m_return": 21.4289652231356,
       "total_market_cap_T": 7.980424527872
     },
-    "fetch_time": "2026-01-18T19:07:54.811989"
+    "fetch_time": "2026-01-18T21:32:05.163189"
   },
   "relative_strength": {
     "comparisons": {
@@ -1344,5 +1344,5 @@
       "interpretation": "bearish"
     }
   },
-  "fetch_time": "2026-01-18T19:07:54.812022"
+  "fetch_time": "2026-01-18T21:32:05.163220"
 }

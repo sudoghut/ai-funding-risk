@@ -564,40 +564,95 @@ class RiskDashboard:
         print(f"Saved: {output_path}")
 
     def plot_supply_demand_projection(self, supply_demand: Dict):
-        """Plot supply-demand balance projection"""
+        """Plot supply-demand balance projection with historical data"""
         if not MATPLOTLIB_AVAILABLE:
             return
 
+        historical = supply_demand.get("historical", [])
         projections = supply_demand.get("projections", [])
         if not projections:
             return
 
-        years = [p["year"] for p in projections]
-        demand = [p["demand_B"] for p in projections]
-        supply = [p["supply_B"] for p in projections]
-        gap = [p["gap_B"] for p in projections]
+        # Combine historical and projection data
+        hist_years = [h["year"] for h in historical]
+        hist_demand = [h["demand_B"] for h in historical]
+        hist_supply = [h["supply_B"] for h in historical]
+        hist_gap = [h["gap_B"] for h in historical]
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+        proj_years = [p["year"] for p in projections]
+        proj_demand = [p["demand_B"] for p in projections]
+        proj_supply = [p["supply_B"] for p in projections]
+        proj_gap = [p["gap_B"] for p in projections]
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
 
         # Plot 1: Supply vs Demand
-        ax1.plot(years, demand, 'r-o', label='Capital Demand', linewidth=2)
-        ax1.plot(years, supply, 'g-o', label='Funding Supply', linewidth=2)
-        ax1.fill_between(years, demand, supply, alpha=0.3,
-                         color='green' if supply[-1] > demand[-1] else 'red')
-        ax1.set_xlabel('Year')
-        ax1.set_ylabel('Amount ($B)')
-        ax1.set_title('AI Funding Supply vs Demand Projection')
-        ax1.legend()
+        # Historical data (solid lines with markers)
+        if hist_years:
+            ax1.plot(hist_years, hist_demand, 'r-o', label='Capital Demand (Historical)', linewidth=2, markersize=8)
+            ax1.plot(hist_years, hist_supply, 'g-o', label='Funding Supply (Historical)', linewidth=2, markersize=8)
+
+        # Projection data (dashed lines with different markers)
+        ax1.plot(proj_years, proj_demand, 'r--s', label='Capital Demand (Projected)', linewidth=2, markersize=6, alpha=0.7)
+        ax1.plot(proj_years, proj_supply, 'g--s', label='Funding Supply (Projected)', linewidth=2, markersize=6, alpha=0.7)
+
+        # Add vertical line to separate historical from projected
+        if hist_years and proj_years:
+            boundary = (hist_years[-1] + proj_years[0]) / 2
+            ax1.axvline(x=boundary, color='gray', linestyle=':', linewidth=2, alpha=0.7)
+            ax1.text(boundary, ax1.get_ylim()[1] * 0.95, '  Projected →', fontsize=10, color='gray', va='top')
+
+        # Fill between for projection
+        ax1.fill_between(proj_years, proj_demand, proj_supply, alpha=0.2,
+                         color='green' if proj_supply[-1] > proj_demand[-1] else 'red')
+
+        ax1.set_xlabel('Year', fontsize=12)
+        ax1.set_ylabel('Amount ($B)', fontsize=12)
+        ax1.set_title('AI Funding Supply vs Demand: Historical & Projection', fontsize=14, fontweight='bold')
+        ax1.legend(loc='upper left', fontsize=10)
         ax1.grid(True, alpha=0.3)
 
         # Plot 2: Gap analysis
-        colors = ['green' if g > 0 else 'red' for g in gap]
-        ax2.bar(years, gap, color=colors, alpha=0.7)
+        all_years = hist_years + proj_years
+        all_gap = hist_gap + proj_gap
+
+        # Different colors for historical vs projected
+        colors = []
+        for i, g in enumerate(all_gap):
+            if i < len(hist_years):
+                colors.append('#2ecc71' if g > 0 else '#e74c3c')  # Solid colors for historical
+            else:
+                colors.append('#27ae60' if g > 0 else '#c0392b')  # Slightly different for projected
+
+        # Different edge styles
+        edge_colors = ['black' if i < len(hist_years) else 'gray' for i in range(len(all_gap))]
+        line_styles = ['solid' if i < len(hist_years) else 'dashed' for i in range(len(all_gap))]
+
+        bars = ax2.bar(all_years, all_gap, color=colors, alpha=0.7, edgecolor=edge_colors, linewidth=1.5)
+
+        # Add hatching for projected bars
+        for i, bar in enumerate(bars):
+            if i >= len(hist_years):
+                bar.set_hatch('//')
+
         ax2.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-        ax2.set_xlabel('Year')
-        ax2.set_ylabel('Gap ($B)')
-        ax2.set_title('Funding Gap (Positive = Surplus, Negative = Deficit)')
+
+        # Add vertical line separator
+        if hist_years and proj_years:
+            ax2.axvline(x=boundary, color='gray', linestyle=':', linewidth=2, alpha=0.7)
+
+        ax2.set_xlabel('Year', fontsize=12)
+        ax2.set_ylabel('Gap ($B)', fontsize=12)
+        ax2.set_title('Funding Gap: Historical & Projected (Positive = Surplus, Negative = Deficit)', fontsize=14, fontweight='bold')
         ax2.grid(True, alpha=0.3, axis='y')
+
+        # Add legend for bar chart
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor='#2ecc71', edgecolor='black', label='Historical Surplus'),
+            Patch(facecolor='#27ae60', edgecolor='gray', hatch='//', label='Projected Surplus'),
+        ]
+        ax2.legend(handles=legend_elements, loc='upper left', fontsize=10)
 
         plt.tight_layout()
 
@@ -913,12 +968,17 @@ class RiskDashboard:
         </table>
 """)
 
-        # Supply-Demand Projections
+        # Supply-Demand Projections (with historical data)
         if supply_demand:
+            historical = supply_demand.get("historical", [])
             projections = supply_demand.get("projections", [])
-            if projections:
+
+            if historical or projections:
                 html_parts.append("""
-        <h2>5-Year Supply-Demand Projection</h2>
+        <h2>Supply-Demand Historical & Projection</h2>
+        <p style="color: #aaa; font-size: 0.9em; margin-bottom: 10px;">
+            <em>Historical data shows actual YoY growth rates. Projected data uses modeled growth rates.</em>
+        </p>
         <table>
             <thead>
                 <tr>
@@ -932,13 +992,52 @@ class RiskDashboard:
             </thead>
             <tbody>
 """)
+                # Helper function to format value with growth rate
+                def format_with_growth(value, growth_pct, is_historical):
+                    if growth_pct is not None:
+                        growth_str = f"+{growth_pct:.1f}%" if growth_pct >= 0 else f"{growth_pct:.1f}%"
+                        label = "actual" if is_historical else "proj"
+                        # Use cyan color for historical, gray for projected
+                        color = "#4dabf7" if is_historical else "#888"
+                        return f"${value:.0f} <span style='color:{color};font-size:0.85em;'>({growth_str} {label})</span>"
+                    return f"${value:.0f}"
+
+                # Display historical data first
+                for hist in historical:
+                    gap_class = "positive" if hist.get("gap_B", 0) > 0 else "negative"
+                    demand_str = format_with_growth(hist.get('demand_B', 0), hist.get('demand_growth_pct'), True)
+                    supply_str = format_with_growth(hist.get('supply_B', 0), hist.get('supply_growth_pct'), True)
+                    html_parts.append(f"""
+                <tr style="background-color: #1a3a5c;">
+                    <td><strong>{hist.get('year', 'N/A')}</strong> <span style="color:#4dabf7;font-size:0.8em;">(Historical)</span></td>
+                    <td>{demand_str}</td>
+                    <td>{supply_str}</td>
+                    <td class="{gap_class}">${hist.get('gap_B', 0):+.0f}</td>
+                    <td>{hist.get('status', 'N/A').upper()}</td>
+                    <td><span class="signal-badge badge-{'GREEN' if hist.get('risk_level') == 'LOW' else ('YELLOW' if hist.get('risk_level') == 'MEDIUM' else 'RED')}">{hist.get('risk_level', 'N/A')}</span></td>
+                </tr>
+""")
+
+                # Add separator row between historical and projected
+                if historical and projections:
+                    html_parts.append("""
+                <tr style="background-color: #0f3460; border-top: 2px solid #4dabf7;">
+                    <td colspan="6" style="text-align: center; font-weight: bold; color: #4dabf7; padding: 8px;">
+                        ▼ Projected Data ▼
+                    </td>
+                </tr>
+""")
+
+                # Display projected data
                 for proj in projections:
                     gap_class = "positive" if proj.get("gap_B", 0) > 0 else "negative"
+                    demand_str = format_with_growth(proj.get('demand_B', 0), proj.get('demand_growth_pct'), False)
+                    supply_str = format_with_growth(proj.get('supply_B', 0), proj.get('supply_growth_pct'), False)
                     html_parts.append(f"""
                 <tr>
                     <td>{proj.get('year', 'N/A')}</td>
-                    <td>${proj.get('demand_B', 0):.0f}</td>
-                    <td>${proj.get('supply_B', 0):.0f}</td>
+                    <td>{demand_str}</td>
+                    <td>{supply_str}</td>
                     <td class="{gap_class}">${proj.get('gap_B', 0):+.0f}</td>
                     <td>{proj.get('status', 'N/A').upper()}</td>
                     <td><span class="signal-badge badge-{'GREEN' if proj.get('risk_level') == 'LOW' else ('YELLOW' if proj.get('risk_level') == 'MEDIUM' else 'RED')}">{proj.get('risk_level', 'N/A')}</span></td>

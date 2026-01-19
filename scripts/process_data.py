@@ -4,13 +4,16 @@ Consolidates and processes data from all sources for risk analysis
 """
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 import sys
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config.settings import RAW_DATA_DIR, PROCESSED_DATA_DIR, TARGET_COMPANIES, SEC_METRIC_NAMES
+
+# Minimum acceptable date for data (filter out stale data older than 5 years)
+MIN_DATA_YEAR = datetime.now().year - 5
 
 
 class DataProcessor:
@@ -41,6 +44,28 @@ class DataProcessor:
             json.dump(data, f, indent=2, ensure_ascii=False)
         print(f"Saved: {filepath}")
 
+    def _extract_year_from_date(self, date_str: str) -> Optional[int]:
+        """Extract year from date string (YYYY-MM-DD format)"""
+        if date_str and len(date_str) >= 4:
+            try:
+                return int(date_str[:4])
+            except ValueError:
+                return None
+        return None
+
+    def _filter_recent_data(self, values: List[Dict], min_year: int = None) -> List[Dict]:
+        """Filter out stale data older than min_year using fiscal_year"""
+        if min_year is None:
+            min_year = MIN_DATA_YEAR
+
+        filtered = []
+        for v in values:
+            # Use fiscal_year as the primary year identifier
+            fiscal_year = v.get("fiscal_year")
+            if fiscal_year and fiscal_year >= min_year:
+                filtered.append(v)
+        return filtered
+
     def process_sec_data(self, sec_data: Dict) -> Dict[str, Dict]:
         """
         Process SEC data to extract key financial metrics
@@ -62,20 +87,33 @@ class DataProcessor:
                 if not values:
                     continue
 
-                # Sort by date
+                # Sort by fiscal_year (most recent first) for consistent year alignment
+                # This ensures all companies are compared on the same fiscal year basis
                 sorted_values = sorted(
-                    values, key=lambda x: x.get("end_date", ""), reverse=True
+                    values, key=lambda x: x.get("fiscal_year", 0), reverse=True
                 )
 
-                # Get recent annual values (last 5 years)
-                annual_values = [v for v in sorted_values if v.get("form") == "10-K"][:5]
+                # Filter out stale data (older than MIN_DATA_YEAR)
+                recent_values = self._filter_recent_data(sorted_values)
+
+                # If no recent data, fall back to all data but log warning
+                if not recent_values:
+                    recent_values = sorted_values
+                    if sorted_values:
+                        oldest_fy = sorted_values[-1].get("fiscal_year", "unknown")
+                        print(f"  [WARNING] {company_name}/{metric_name}: No recent data, using stale data from FY{oldest_fy}")
+
+                # Get recent annual values (last 10 years for better historical coverage)
+                annual_values = [v for v in recent_values if v.get("form") == "10-K"][:10]
 
                 # Get recent quarterly values (last 8 quarters)
-                quarterly_values = [v for v in sorted_values if v.get("form") == "10-Q"][:8]
+                quarterly_values = [v for v in recent_values if v.get("form") == "10-Q"][:8]
 
                 # Use friendly name if available (e.g., PaymentsToAcquire... -> CapitalExpenditures)
                 output_name = SEC_METRIC_NAMES.get(metric_name, metric_name)
 
+                # Use fiscal_year as the primary year identifier for consistency
+                # This aligns data across companies with different fiscal year end dates
                 company_metrics[output_name] = {
                     "annual": [
                         {
@@ -100,26 +138,76 @@ class DataProcessor:
 
         return processed
 
-    def calculate_derived_metrics(self, sec_processed: Dict) -> Dict[str, Dict]:
+    def _select_most_recent_capex(self, data: Dict) -> Dict:
+        """
+        Select the Capex data source with the most recent date.
+
+        Some companies (e.g., Nvidia, Amazon) have both CapitalExpenditures and
+        CapitalExpenditures_Alt fields. The primary field may contain stale data
+        (e.g., 2011) while the Alt field has current data (e.g., 2024-2025).
+
+        This method compares the most recent date in each field and returns
+        the one with newer data.
+        """
+        primary = data.get("CapitalExpenditures", {})
+        alt = data.get("CapitalExpenditures_Alt", {})
+
+        primary_annual = primary.get("annual", [])
+        alt_annual = alt.get("annual", [])
+
+        # If only one has data, use that
+        if not primary_annual and not alt_annual:
+            return {}
+        if not primary_annual:
+            return alt
+        if not alt_annual:
+            return primary
+
+        # Both have data - compare most recent dates
+        def get_latest_date(annual_list: List[Dict]) -> str:
+            if not annual_list:
+                return ""
+            dates = [item.get("date", "") for item in annual_list if item.get("date")]
+            return max(dates) if dates else ""
+
+        primary_latest = get_latest_date(primary_annual)
+        alt_latest = get_latest_date(alt_annual)
+
+        # Return the one with more recent data
+        if alt_latest > primary_latest:
+            return alt
+        return primary
+
+    def calculate_derived_metrics(self, sec_processed: Dict, yahoo_data: Dict = None) -> Dict[str, Dict]:
         """
         Calculate derived financial metrics
 
         Args:
             sec_processed: Processed SEC data
+            yahoo_data: Optional Yahoo Finance data for fallback/validation
 
         Returns:
             Dictionary with derived metrics per company
         """
         derived = {}
 
+        # Map company names to tickers for Yahoo data lookup
+        company_to_ticker = {
+            "Amazon": "AMZN", "Microsoft": "MSFT", "Alphabet": "GOOG",
+            "Meta": "META", "Oracle": "ORCL", "Nvidia": "NVDA"
+        }
+
         for company_name, data in sec_processed.items():
-            company_derived = {"company": company_name}
+            company_derived = {"company": company_name, "data_quality_notes": []}
+
+            # Get Yahoo data for this company if available
+            ticker = company_to_ticker.get(company_name)
+            yahoo_company = yahoo_data.get(ticker, {}).get("info", {}) if yahoo_data and ticker else {}
 
             # Get latest values (use friendly names from SEC_METRIC_NAMES mapping)
-            # Try primary Capex tag first, then alternative tag (Nvidia uses PaymentsToAcquireProductiveAssets)
-            capex_data = data.get("CapitalExpenditures", {})
-            if not capex_data.get("annual"):
-                capex_data = data.get("CapitalExpenditures_Alt", {})
+            # Choose Capex field with most recent data (fixes issue where primary field has stale data)
+            # Nvidia and Amazon have both CapitalExpenditures (old) and CapitalExpenditures_Alt (current)
+            capex_data = self._select_most_recent_capex(data)
             cashflow_data = data.get("OperatingCashFlow", {}) or data.get("NetCashProvidedByUsedInOperatingActivities", {})
             revenue_data = data.get("Revenues", {})
             debt_data = data.get("LongTermDebt", {})
@@ -152,17 +240,54 @@ class DataProcessor:
                         return round(((current - previous) / abs(previous)) * 100, 2)
                 return None
 
-            # Revenue growth
+            # Revenue growth - use Yahoo fallback if SEC data is missing or stale
             revenue_annual = revenue_data.get("annual", [])
-            company_derived["revenue_growth_yoy"] = calc_yoy_growth(revenue_annual)
-            if revenue_annual:
-                company_derived["latest_revenue"] = revenue_annual[0].get("value")
+            sec_revenue = revenue_annual[0].get("value") if revenue_annual else None
+            sec_revenue_date = revenue_annual[0].get("date", "") if revenue_annual else ""
+            sec_revenue_year = self._extract_year_from_date(sec_revenue_date)
 
-            # Debt growth
+            # Check if SEC revenue is missing or stale (>3 years old) - fallback to Yahoo
+            is_stale = sec_revenue_year and sec_revenue_year < (datetime.now().year - 3)
+            use_yahoo_revenue = (sec_revenue is None or is_stale) and yahoo_company.get("revenue")
+
+            if use_yahoo_revenue:
+                yahoo_revenue = yahoo_company.get("revenue")
+                company_derived["latest_revenue"] = yahoo_revenue
+                company_derived["revenue_source"] = "yahoo"
+                # Use Yahoo's revenue growth if available
+                if yahoo_company.get("revenue_growth"):
+                    company_derived["revenue_growth_yoy"] = round(yahoo_company["revenue_growth"] * 100, 2)
+                else:
+                    company_derived["revenue_growth_yoy"] = None
+                reason = "stale" if is_stale else "missing"
+                company_derived["data_quality_notes"].append(
+                    f"SEC revenue {reason} ({sec_revenue_date}), using Yahoo Finance: ${yahoo_revenue/1e9:.1f}B"
+                )
+            else:
+                company_derived["revenue_growth_yoy"] = calc_yoy_growth(revenue_annual)
+                if revenue_annual:
+                    company_derived["latest_revenue"] = revenue_annual[0].get("value")
+                    company_derived["revenue_source"] = "sec"
+
+            # Debt growth - use Yahoo fallback if SEC data is missing or zero
             debt_annual = debt_data.get("annual", [])
-            company_derived["debt_growth_yoy"] = calc_yoy_growth(debt_annual)
-            if debt_annual:
-                company_derived["latest_debt"] = debt_annual[0].get("value")
+            sec_debt = debt_annual[0].get("value") if debt_annual else None
+
+            # Check if SEC debt is missing or zero - fallback to Yahoo
+            if (sec_debt is None or sec_debt == 0) and yahoo_company.get("total_debt"):
+                yahoo_debt = yahoo_company.get("total_debt")
+                company_derived["latest_debt"] = yahoo_debt
+                company_derived["debt_source"] = "yahoo"
+                company_derived["data_quality_notes"].append(
+                    f"SEC debt missing/zero, using Yahoo Finance: ${yahoo_debt/1e9:.1f}B"
+                )
+                # Cannot calculate growth without historical SEC data
+                company_derived["debt_growth_yoy"] = None
+            else:
+                company_derived["debt_growth_yoy"] = calc_yoy_growth(debt_annual)
+                if debt_annual:
+                    company_derived["latest_debt"] = debt_annual[0].get("value")
+                    company_derived["debt_source"] = "sec"
 
             # Capex growth
             company_derived["capex_growth_yoy"] = calc_yoy_growth(capex_annual)
@@ -302,11 +427,12 @@ class DataProcessor:
             "macro_indicators": {},
         }
 
-        # Process SEC data
+        # Process SEC data (with Yahoo data available for fallback)
         if sec_data:
             print("Processing SEC data...")
             sec_processed = self.process_sec_data(sec_data)
-            derived_metrics = self.calculate_derived_metrics(sec_processed)
+            # Pass Yahoo data for fallback when SEC data is missing
+            derived_metrics = self.calculate_derived_metrics(sec_processed, yahoo_data)
 
             for company_name in sec_processed:
                 consolidated["companies"][company_name] = {
