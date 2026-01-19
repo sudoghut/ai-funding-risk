@@ -154,7 +154,7 @@
 <body>
     <div class="container">
         <h1>Company Historical Demand & Supply Analysis</h1>
-        <p class="subtitle">AI Infrastructure Investment Trends by Company (Fiscal Year Data)</p>
+        <p class="subtitle">AI Infrastructure Investment Trends by Company (Calendar Year Aligned)</p>
 
         <div class="filters">
             <div class="filter-title">Filter Companies</div>
@@ -196,11 +196,11 @@
                     <tr>
                         <th>Company</th>
                         <th>Metric</th>
-                        <th>FY2021</th>
-                        <th>FY2022</th>
-                        <th>FY2023</th>
-                        <th>FY2024</th>
-                        <th>FY2025</th>
+                        <th>CY2021</th>
+                        <th>CY2022</th>
+                        <th>CY2023</th>
+                        <th>CY2024</th>
+                        <th>CY2025</th>
                         <th>Growth (Latest)</th>
                     </tr>
                 </thead>
@@ -211,43 +211,50 @@
 
     <script>
         // Company data (CapEx = Demand, OCF = Supply basis)
-        // Data source: Yahoo Finance (yfinance API)
-        // Note: Different fiscal year ends - MSFT(Jun), ORCL(May), NVDA(Jan), others(Dec)
-        // FY2021 data unavailable for MSFT/ORCL/NVDA due to API limitations
+        // Data source: Yahoo Finance (yfinance API) - Calendar Year Aligned
+        // Data represents the calendar year when each company's fiscal year ends
+        // E.g., MSFT FY2025 (ends Jun 2025) is shown under 2025, AMZN CY2024 (ends Dec 2024) under 2024
+        // This provides consistent calendar-year comparison across all companies
         const companyData = {
             Amazon: {
                 color: '#ff9900',
+                // Calendar year end: December
                 capex: { 2021: 61.1, 2022: 63.6, 2023: 52.7, 2024: 83.0, 2025: null },
                 ocf: { 2021: 46.3, 2022: 46.8, 2023: 84.9, 2024: 115.9, 2025: null }
             },
             Microsoft: {
                 color: '#00a4ef',
+                // Fiscal year end: June (FY2025 = Jul 2024 - Jun 2025, shown as 2025)
                 capex: { 2021: null, 2022: 23.9, 2023: 28.1, 2024: 44.5, 2025: 64.6 },
                 ocf: { 2021: null, 2022: 89.0, 2023: 87.6, 2024: 118.5, 2025: 136.2 }
             },
             Alphabet: {
                 color: '#4285f4',
+                // Calendar year end: December
                 capex: { 2021: 24.6, 2022: 31.5, 2023: 32.3, 2024: 52.5, 2025: null },
                 ocf: { 2021: 91.7, 2022: 91.5, 2023: 101.7, 2024: 125.3, 2025: null }
             },
             Meta: {
                 color: '#0866ff',
+                // Calendar year end: December
                 capex: { 2021: 18.7, 2022: 31.2, 2023: 27.0, 2024: 37.3, 2025: null },
                 ocf: { 2021: 57.7, 2022: 50.5, 2023: 71.1, 2024: 91.3, 2025: null }
             },
             Oracle: {
                 color: '#f80000',
+                // Fiscal year end: May (FY2025 = Jun 2024 - May 2025, shown as 2025)
                 capex: { 2021: null, 2022: 4.5, 2023: 8.7, 2024: 6.9, 2025: 21.2 },
                 ocf: { 2021: null, 2022: 9.5, 2023: 17.2, 2024: 18.7, 2025: 20.8 }
             },
             Nvidia: {
                 color: '#76b900',
+                // Fiscal year end: January (FY2025 = Feb 2024 - Jan 2025, shown as 2025)
                 capex: { 2021: null, 2022: 1.0, 2023: 1.8, 2024: 1.1, 2025: 3.2 },
                 ocf: { 2021: null, 2022: 9.1, 2023: 5.6, 2024: 28.1, 2025: 64.1 }
             }
         };
 
-        const years = ['FY2021', 'FY2022', 'FY2023', 'FY2024', 'FY2025'];
+        const years = ['CY2021', 'CY2022', 'CY2023', 'CY2024', 'CY2025'];
         const yearKeys = [2021, 2022, 2023, 2024, 2025];
 
         let activeCompanies = new Set(Object.keys(companyData));

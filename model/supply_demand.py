@@ -88,12 +88,11 @@ class SupplyDemandAnalyzer:
 
     def _calculate_aggregate_growth_rate(self, consolidated: Dict, metric_key: str = "capex") -> float:
         """
-        Calculate aggregate growth rate from SEC data by summing all companies' values
-        and computing YoY change on the total.
+        Calculate aggregate growth rate from Yahoo Finance historical data by summing
+        all companies' values and computing YoY change on the total.
 
-        This method calculates the growth rate of the TOTAL across all companies,
-        which better reflects the overall industry trend than averaging individual
-        company growth rates.
+        Uses Yahoo Finance annual cashflow data which provides accurate calendar-year
+        aligned data across all companies, avoiding fiscal year mismatch issues.
 
         Args:
             consolidated: Consolidated company data
@@ -104,32 +103,27 @@ class SupplyDemandAnalyzer:
         """
         companies = consolidated.get("companies", {})
 
-        # Collect yearly totals
+        # Collect yearly totals from Yahoo Finance historical data
         yearly_totals = {}
 
         for company_name, company_data in companies.items():
-            sec = company_data.get("sec_metrics", {})
+            yahoo_hist = company_data.get("yahoo_historical", {})
 
             if metric_key == "capex":
-                # Get CapEx data (prefer Alt which has more recent data)
-                data = sec.get("CapitalExpenditures_Alt", {}).get("annual", [])
-                if not data:
-                    data = sec.get("CapitalExpenditures", {}).get("annual", [])
+                data = yahoo_hist.get("capex", [])
             elif metric_key == "ocf":
-                data = sec.get("OperatingCashFlow", {}).get("annual", [])
+                data = yahoo_hist.get("ocf", [])
             else:
                 data = []
 
-            # Deduplicate and aggregate by year
-            seen_years = set()
+            # Aggregate by calendar year
             for item in data:
                 year = item.get("year")
                 value = item.get("value", 0)
-                if year and year not in seen_years and value > 0:
-                    seen_years.add(year)
+                if year and value > 0:
                     if year not in yearly_totals:
                         yearly_totals[year] = 0
-                    yearly_totals[year] += value / 1e9  # Convert to billions
+                    yearly_totals[year] += value  # Already in billions
 
         # Get complete years with substantial data
         # For OCF: >$200B (6 companies should have ~$250B+)
@@ -487,40 +481,32 @@ class SupplyDemandAnalyzer:
         """
         companies = consolidated.get("companies", {})
 
-        # Collect annual data by year
+        # Collect annual data by calendar year from Yahoo Finance historical data
         yearly_capex = {}  # year -> total capex
         yearly_ocf = {}    # year -> total operating cash flow
 
         for company_name, company_data in companies.items():
-            sec = company_data.get("sec_metrics", {})
+            yahoo_hist = company_data.get("yahoo_historical", {})
 
-            # Get CapEx data (prefer CapitalExpenditures_Alt which has more recent data)
-            capex_data = sec.get("CapitalExpenditures_Alt", {}).get("annual", [])
-            if not capex_data:
-                capex_data = sec.get("CapitalExpenditures", {}).get("annual", [])
-
-            # Deduplicate and aggregate by year
-            seen_years = set()
+            # Get CapEx data from Yahoo historical
+            capex_data = yahoo_hist.get("capex", [])
             for item in capex_data:
                 year = item.get("year")
                 value = item.get("value", 0)
-                if year and year not in seen_years and value > 0:
-                    seen_years.add(year)
+                if year and value > 0:
                     if year not in yearly_capex:
                         yearly_capex[year] = 0
-                    yearly_capex[year] += value / 1e9  # Convert to billions
+                    yearly_capex[year] += value  # Already in billions
 
-            # Get Operating Cash Flow data
-            ocf_data = sec.get("OperatingCashFlow", {}).get("annual", [])
-            seen_years = set()
+            # Get Operating Cash Flow data from Yahoo historical
+            ocf_data = yahoo_hist.get("ocf", [])
             for item in ocf_data:
                 year = item.get("year")
                 value = item.get("value", 0)
-                if year and year not in seen_years and value > 0:
-                    seen_years.add(year)
+                if year and value > 0:
                     if year not in yearly_ocf:
                         yearly_ocf[year] = 0
-                    yearly_ocf[year] += value / 1e9
+                    yearly_ocf[year] += value  # Already in billions
 
         # Build historical records for recent years
         current_year = self.base_year

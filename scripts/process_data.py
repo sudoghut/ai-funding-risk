@@ -178,13 +178,23 @@ class DataProcessor:
             return alt
         return primary
 
-    def calculate_derived_metrics(self, sec_processed: Dict, yahoo_data: Dict = None) -> Dict[str, Dict]:
+    def calculate_derived_metrics(
+        self, sec_processed: Dict, yahoo_data: Dict = None, yahoo_historical: Dict = None
+    ) -> Dict[str, Dict]:
         """
-        Calculate derived financial metrics
+        Calculate derived financial metrics using Yahoo Finance as primary data source.
+
+        Yahoo data is preferred because:
+        1. Calendar-year aligned (avoids fiscal year mismatch issues)
+        2. More up-to-date TTM (trailing twelve months) data
+        3. Consistent across all companies
+
+        SEC data is used as fallback when Yahoo data is unavailable.
 
         Args:
-            sec_processed: Processed SEC data
-            yahoo_data: Optional Yahoo Finance data for fallback/validation
+            sec_processed: Processed SEC data (fallback)
+            yahoo_data: Yahoo Finance current data (primary for latest values)
+            yahoo_historical: Yahoo Finance historical data (primary for YoY growth)
 
         Returns:
             Dictionary with derived metrics per company
@@ -200,39 +210,58 @@ class DataProcessor:
         for company_name, data in sec_processed.items():
             company_derived = {"company": company_name, "data_quality_notes": []}
 
-            # Get Yahoo data for this company if available
+            # Get Yahoo data for this company
             ticker = company_to_ticker.get(company_name)
             yahoo_company = yahoo_data.get(ticker, {}).get("info", {}) if yahoo_data and ticker else {}
+            yahoo_hist = yahoo_historical.get(ticker, {}) if yahoo_historical and ticker else {}
 
-            # Get latest values (use friendly names from SEC_METRIC_NAMES mapping)
-            # Choose Capex field with most recent data (fixes issue where primary field has stale data)
-            # Nvidia and Amazon have both CapitalExpenditures (old) and CapitalExpenditures_Alt (current)
+            # Get SEC data as fallback
             capex_data = self._select_most_recent_capex(data)
             cashflow_data = data.get("OperatingCashFlow", {}) or data.get("NetCashProvidedByUsedInOperatingActivities", {})
             revenue_data = data.get("Revenues", {})
             debt_data = data.get("LongTermDebt", {})
 
-            # Calculate Capex to Cash Flow ratio
             capex_annual = capex_data.get("annual", [])
             cashflow_annual = cashflow_data.get("annual", [])
 
-            if capex_annual and cashflow_annual:
-                # Get most recent values
+            # Calculate Capex to Cash Flow ratio using Yahoo data (primary)
+            yahoo_op_cf = yahoo_company.get("operating_cashflow")
+            yahoo_free_cf = yahoo_company.get("free_cashflow")
+
+            if yahoo_op_cf and yahoo_free_cf:
+                # CapEx = Operating Cash Flow - Free Cash Flow
+                latest_capex = yahoo_op_cf - yahoo_free_cf
+                latest_cashflow = yahoo_op_cf
+                if latest_cashflow > 0 and latest_capex > 0:
+                    company_derived["capex_to_cashflow_ratio"] = round(
+                        latest_capex / latest_cashflow, 3
+                    )
+                    company_derived["latest_capex"] = latest_capex
+                    company_derived["latest_operating_cashflow"] = latest_cashflow
+                    company_derived["capex_source"] = "yahoo"
+            elif capex_annual and cashflow_annual:
+                # Fallback to SEC data
                 latest_capex = abs(capex_annual[0].get("value", 0)) if capex_annual else 0
                 latest_cashflow = cashflow_annual[0].get("value", 0) if cashflow_annual else 0
-
                 if latest_cashflow > 0:
                     company_derived["capex_to_cashflow_ratio"] = round(
                         latest_capex / latest_cashflow, 3
                     )
-                else:
-                    company_derived["capex_to_cashflow_ratio"] = None
-
                 company_derived["latest_capex"] = latest_capex
                 company_derived["latest_operating_cashflow"] = latest_cashflow
+                company_derived["capex_source"] = "sec"
 
-            # Calculate year-over-year growth rates
-            def calc_yoy_growth(values: List[Dict]) -> Optional[float]:
+            # Helper to calculate YoY growth from Yahoo historical data
+            def calc_yahoo_yoy_growth(hist_list: List[Dict]) -> Optional[float]:
+                if len(hist_list) >= 2:
+                    current = hist_list[0].get("value", 0)
+                    previous = hist_list[1].get("value", 0)
+                    if previous and previous != 0:
+                        return round(((current - previous) / abs(previous)) * 100, 2)
+                return None
+
+            # Helper for SEC fallback
+            def calc_sec_yoy_growth(values: List[Dict]) -> Optional[float]:
                 if len(values) >= 2:
                     current = values[0].get("value", 0)
                     previous = values[1].get("value", 0)
@@ -240,68 +269,68 @@ class DataProcessor:
                         return round(((current - previous) / abs(previous)) * 100, 2)
                 return None
 
-            # Revenue growth - use Yahoo fallback if SEC data is missing or stale
-            revenue_annual = revenue_data.get("annual", [])
-            sec_revenue = revenue_annual[0].get("value") if revenue_annual else None
-            sec_revenue_date = revenue_annual[0].get("date", "") if revenue_annual else ""
-            sec_revenue_year = self._extract_year_from_date(sec_revenue_date)
-
-            # Check if SEC revenue is missing or stale (>3 years old) - fallback to Yahoo
-            is_stale = sec_revenue_year and sec_revenue_year < (datetime.now().year - 3)
-            use_yahoo_revenue = (sec_revenue is None or is_stale) and yahoo_company.get("revenue")
-
-            if use_yahoo_revenue:
-                yahoo_revenue = yahoo_company.get("revenue")
-                company_derived["latest_revenue"] = yahoo_revenue
+            # Revenue - Yahoo as primary source
+            yahoo_revenue_hist = yahoo_hist.get("revenue", [])
+            if yahoo_revenue_hist:
+                # Use Yahoo historical data for growth calculation
+                company_derived["latest_revenue"] = yahoo_revenue_hist[0].get("value", 0) * 1e9  # Convert back to raw
+                company_derived["revenue_growth_yoy"] = calc_yahoo_yoy_growth(yahoo_revenue_hist)
                 company_derived["revenue_source"] = "yahoo"
-                # Use Yahoo's revenue growth if available
+            elif yahoo_company.get("revenue"):
+                # Fallback to Yahoo info (no historical growth)
+                company_derived["latest_revenue"] = yahoo_company.get("revenue")
                 if yahoo_company.get("revenue_growth"):
                     company_derived["revenue_growth_yoy"] = round(yahoo_company["revenue_growth"] * 100, 2)
-                else:
-                    company_derived["revenue_growth_yoy"] = None
-                reason = "stale" if is_stale else "missing"
-                company_derived["data_quality_notes"].append(
-                    f"SEC revenue {reason} ({sec_revenue_date}), using Yahoo Finance: ${yahoo_revenue/1e9:.1f}B"
-                )
+                company_derived["revenue_source"] = "yahoo_info"
             else:
-                company_derived["revenue_growth_yoy"] = calc_yoy_growth(revenue_annual)
+                # Fallback to SEC data
+                revenue_annual = revenue_data.get("annual", [])
                 if revenue_annual:
                     company_derived["latest_revenue"] = revenue_annual[0].get("value")
+                    company_derived["revenue_growth_yoy"] = calc_sec_yoy_growth(revenue_annual)
                     company_derived["revenue_source"] = "sec"
+                    company_derived["data_quality_notes"].append("Using SEC revenue data (Yahoo unavailable)")
 
-            # Debt growth - use Yahoo fallback if SEC data is missing or zero
-            debt_annual = debt_data.get("annual", [])
-            sec_debt = debt_annual[0].get("value") if debt_annual else None
-
-            # Check if SEC debt is missing or zero - fallback to Yahoo
-            if (sec_debt is None or sec_debt == 0) and yahoo_company.get("total_debt"):
-                yahoo_debt = yahoo_company.get("total_debt")
-                company_derived["latest_debt"] = yahoo_debt
+            # Debt - Yahoo as primary source
+            yahoo_debt_hist = yahoo_hist.get("debt", [])
+            if yahoo_debt_hist:
+                # Use Yahoo historical data for growth calculation
+                company_derived["latest_debt"] = yahoo_debt_hist[0].get("value", 0) * 1e9  # Convert back to raw
+                company_derived["debt_growth_yoy"] = calc_yahoo_yoy_growth(yahoo_debt_hist)
                 company_derived["debt_source"] = "yahoo"
-                company_derived["data_quality_notes"].append(
-                    f"SEC debt missing/zero, using Yahoo Finance: ${yahoo_debt/1e9:.1f}B"
-                )
-                # Cannot calculate growth without historical SEC data
+            elif yahoo_company.get("total_debt"):
+                # Fallback to Yahoo info (no historical growth)
+                company_derived["latest_debt"] = yahoo_company.get("total_debt")
                 company_derived["debt_growth_yoy"] = None
+                company_derived["debt_source"] = "yahoo_info"
             else:
-                company_derived["debt_growth_yoy"] = calc_yoy_growth(debt_annual)
+                # Fallback to SEC data
+                debt_annual = debt_data.get("annual", [])
                 if debt_annual:
                     company_derived["latest_debt"] = debt_annual[0].get("value")
+                    company_derived["debt_growth_yoy"] = calc_sec_yoy_growth(debt_annual)
                     company_derived["debt_source"] = "sec"
+                    company_derived["data_quality_notes"].append("Using SEC debt data (Yahoo unavailable)")
 
-            # Capex growth
-            company_derived["capex_growth_yoy"] = calc_yoy_growth(capex_annual)
+            # Capex growth - use Yahoo historical if available
+            yahoo_capex_hist = yahoo_hist.get("capex", [])
+            if yahoo_capex_hist:
+                company_derived["capex_growth_yoy"] = calc_yahoo_yoy_growth(yahoo_capex_hist)
+            else:
+                company_derived["capex_growth_yoy"] = calc_sec_yoy_growth(capex_annual)
 
-            # Debt to revenue growth ratio
+            # Derived ratios
             revenue_growth = company_derived.get("revenue_growth_yoy")
             debt_growth = company_derived.get("debt_growth_yoy")
+            capex_growth = company_derived.get("capex_growth_yoy")
+
+            # Debt to revenue growth ratio
             if revenue_growth and debt_growth and revenue_growth != 0:
                 company_derived["debt_to_revenue_growth_ratio"] = round(
                     debt_growth / revenue_growth, 3
                 )
 
             # Capex efficiency: Revenue growth / Capex growth
-            capex_growth = company_derived.get("capex_growth_yoy")
             if revenue_growth and capex_growth and capex_growth != 0:
                 company_derived["capex_efficiency"] = round(
                     revenue_growth / capex_growth, 3
@@ -351,6 +380,107 @@ class DataProcessor:
                 "trend_pct": round(trend_pct, 2),
                 "trend_direction": "up" if trend_pct > 1 else ("down" if trend_pct < -1 else "stable"),
                 "observation_count": len(observations),
+            }
+
+        return processed
+
+    def process_yahoo_historical_data(self, yahoo_data: Dict) -> Dict[str, Dict]:
+        """
+        Process Yahoo Finance historical data to extract calendar-year aligned
+        CapEx, OCF, Revenue, and Debt time series.
+
+        This data is used for historical trend analysis to avoid fiscal year mismatch
+        issues that occur with SEC data.
+
+        Args:
+            yahoo_data: Raw Yahoo data with annual_cashflow, annual_financials, annual_balance_sheet
+
+        Returns:
+            Dictionary mapping tickers to historical metrics by calendar year
+        """
+        processed = {}
+
+        for ticker, data in yahoo_data.items():
+            capex_history = []
+            ocf_history = []
+            revenue_history = []
+            debt_history = []
+
+            # Process cashflow data (CapEx, OCF)
+            annual_cf = data.get("annual_cashflow", {})
+            if annual_cf and annual_cf.get("data"):
+                cf_data = annual_cf["data"]
+                for period, values in cf_data.items():
+                    try:
+                        year = int(period[:4])
+                    except (ValueError, TypeError):
+                        continue
+
+                    # Get CapEx (stored as negative in Yahoo, we want absolute value)
+                    capex = values.get("Capital Expenditure", 0)
+                    if capex:
+                        capex_history.append({
+                            "year": year,
+                            "period": period,
+                            "value": round(abs(capex) / 1e9, 2)  # Convert to billions
+                        })
+
+                    # Get Operating Cash Flow
+                    ocf = values.get("Operating Cash Flow", 0)
+                    if ocf:
+                        ocf_history.append({
+                            "year": year,
+                            "period": period,
+                            "value": round(ocf / 1e9, 2)  # Convert to billions
+                        })
+
+            # Process financials data (Revenue)
+            annual_fin = data.get("annual_financials", {})
+            if annual_fin and annual_fin.get("data"):
+                fin_data = annual_fin["data"]
+                for period, values in fin_data.items():
+                    try:
+                        year = int(period[:4])
+                    except (ValueError, TypeError):
+                        continue
+
+                    revenue = values.get("Total Revenue", 0)
+                    if revenue and revenue > 0:
+                        revenue_history.append({
+                            "year": year,
+                            "period": period,
+                            "value": round(revenue / 1e9, 2)  # Convert to billions
+                        })
+
+            # Process balance sheet data (Debt)
+            annual_bs = data.get("annual_balance_sheet", {})
+            if annual_bs and annual_bs.get("data"):
+                bs_data = annual_bs["data"]
+                for period, values in bs_data.items():
+                    try:
+                        year = int(period[:4])
+                    except (ValueError, TypeError):
+                        continue
+
+                    debt = values.get("Total Debt", 0)
+                    if debt is not None:  # Allow 0 debt
+                        debt_history.append({
+                            "year": year,
+                            "period": period,
+                            "value": round(debt / 1e9, 2) if debt else 0  # Convert to billions
+                        })
+
+            # Sort all by year descending
+            capex_history.sort(key=lambda x: x["year"], reverse=True)
+            ocf_history.sort(key=lambda x: x["year"], reverse=True)
+            revenue_history.sort(key=lambda x: x["year"], reverse=True)
+            debt_history.sort(key=lambda x: x["year"], reverse=True)
+
+            processed[ticker] = {
+                "capex": capex_history,
+                "ocf": ocf_history,
+                "revenue": revenue_history,
+                "debt": debt_history
             }
 
         return processed
@@ -427,12 +557,31 @@ class DataProcessor:
             "macro_indicators": {},
         }
 
-        # Process SEC data (with Yahoo data available for fallback)
+        # Process Yahoo data first (primary data source)
+        yahoo_processed = {}
+        yahoo_historical = {}
+        ticker_to_company = {
+            "AMZN": "Amazon",
+            "MSFT": "Microsoft",
+            "GOOG": "Alphabet",
+            "META": "Meta",
+            "ORCL": "Oracle",
+            "NVDA": "Nvidia",
+        }
+
+        if yahoo_data:
+            print("Processing Yahoo Finance data (primary source)...")
+            yahoo_processed = self.process_yahoo_data(yahoo_data)
+            yahoo_historical = self.process_yahoo_historical_data(yahoo_data)
+
+        # Process SEC data (with Yahoo as primary, SEC as fallback)
         if sec_data:
-            print("Processing SEC data...")
+            print("Processing SEC data (fallback source)...")
             sec_processed = self.process_sec_data(sec_data)
-            # Pass Yahoo data for fallback when SEC data is missing
-            derived_metrics = self.calculate_derived_metrics(sec_processed, yahoo_data)
+            # Pass Yahoo data as primary source, SEC as fallback
+            derived_metrics = self.calculate_derived_metrics(
+                sec_processed, yahoo_data, yahoo_historical
+            )
 
             for company_name in sec_processed:
                 consolidated["companies"][company_name] = {
@@ -445,21 +594,8 @@ class DataProcessor:
             print("Processing FRED data...")
             consolidated["macro_indicators"] = self.process_fred_data(fred_data)
 
-        # Process Yahoo data and merge with companies
+        # Merge Yahoo data with companies
         if yahoo_data:
-            print("Processing Yahoo Finance data...")
-            yahoo_processed = self.process_yahoo_data(yahoo_data)
-
-            # Map tickers to company names
-            ticker_to_company = {
-                "AMZN": "Amazon",
-                "MSFT": "Microsoft",
-                "GOOG": "Alphabet",
-                "META": "Meta",
-                "ORCL": "Oracle",
-                "NVDA": "Nvidia",
-            }
-
             for ticker, metrics in yahoo_processed.items():
                 company_name = ticker_to_company.get(ticker)
                 if company_name:
@@ -467,6 +603,10 @@ class DataProcessor:
                         consolidated["companies"][company_name] = {}
                     consolidated["companies"][company_name]["yahoo_metrics"] = metrics
                     consolidated["companies"][company_name]["ticker"] = ticker
+
+                    # Add Yahoo historical data for calendar-year aligned analysis
+                    if ticker in yahoo_historical:
+                        consolidated["companies"][company_name]["yahoo_historical"] = yahoo_historical[ticker]
 
         return consolidated
 

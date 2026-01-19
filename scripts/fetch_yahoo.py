@@ -214,7 +214,9 @@ class YahooFetcher:
                 "quarterly_cashflow": self.fetch_cashflow(ticker, quarterly=True),
                 "annual_cashflow": self.fetch_cashflow(ticker, quarterly=False),
                 "quarterly_balance_sheet": self.fetch_balance_sheet(ticker, quarterly=True),
+                "annual_balance_sheet": self.fetch_balance_sheet(ticker, quarterly=False),
                 "quarterly_financials": self.fetch_financials(ticker, quarterly=True),
+                "annual_financials": self.fetch_financials(ticker, quarterly=False),
                 "fetch_time": datetime.now().isoformat(),
             }
 

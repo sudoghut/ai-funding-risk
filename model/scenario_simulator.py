@@ -182,22 +182,18 @@ class ScenarioSimulator:
             if capex_growth is not None:
                 capex_growth_rates.append(capex_growth)
 
-            # Try to calculate from SEC historical data
-            if sec_metrics:
-                # Calculate multi-year CAGR from SEC data
-                for metric_name, metric_data in sec_metrics.items():
-                    if metric_name == "Revenues" and "annual" in metric_data:
-                        annual_data = metric_data["annual"]
-                        if len(annual_data) >= 2:
-                            # Calculate CAGR
-                            years = len(annual_data) - 1
-                            if years > 0:
-                                latest = annual_data[0].get("value", 0)
-                                oldest = annual_data[-1].get("value", 0)
-                                if oldest > 0 and latest > 0:
-                                    cagr = ((latest / oldest) ** (1 / years) - 1) * 100
-                                    if cagr not in revenue_growth_rates:
-                                        revenue_growth_rates.append(cagr)
+            # Calculate capex growth from Yahoo historical data (calendar-year aligned)
+            yahoo_hist = company_data.get("yahoo_historical", {})
+            if yahoo_hist:
+                capex_data = yahoo_hist.get("capex", [])
+                if len(capex_data) >= 2:
+                    # Calculate YoY growth from most recent years
+                    latest = capex_data[0].get("value", 0)
+                    prev = capex_data[1].get("value", 0)
+                    if prev > 0 and latest > 0:
+                        yoy_growth = ((latest - prev) / prev) * 100
+                        if -50 < yoy_growth < 200:  # Reasonable bounds
+                            capex_growth_rates.append(yoy_growth)
 
         # Calculate averages (default to conservative estimates if no data)
         def safe_average(values, default):
