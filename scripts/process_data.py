@@ -405,8 +405,10 @@ class DataProcessor:
             ocf_history = []
             revenue_history = []
             debt_history = []
+            ocf_breakdown_history = []
+            funding_sources_history = []
 
-            # Process cashflow data (CapEx, OCF)
+            # Process cashflow data (CapEx, OCF, OCF Breakdown, Funding Sources)
             annual_cf = data.get("annual_cashflow", {})
             if annual_cf and annual_cf.get("data"):
                 cf_data = annual_cf["data"]
@@ -434,6 +436,52 @@ class DataProcessor:
                             "value": round(ocf / 1e9, 2)  # Convert to billions
                         })
 
+                    # OCF Breakdown (components that make up OCF)
+                    net_income = values.get("Net Income From Continuing Operations", 0)
+                    depreciation = values.get("Depreciation And Amortization", 0)
+                    stock_comp = values.get("Stock Based Compensation", 0)
+                    working_capital = values.get("Change In Working Capital", 0)
+                    deferred_tax = values.get("Deferred Income Tax", 0)
+
+                    # Calculate "Other" as the difference
+                    known_components = (net_income or 0) + (depreciation or 0) + (stock_comp or 0) + (working_capital or 0) + (deferred_tax or 0)
+                    other = (ocf or 0) - known_components
+
+                    ocf_breakdown_history.append({
+                        "year": year,
+                        "period": period,
+                        "net_income": round((net_income or 0) / 1e9, 2),
+                        "depreciation": round((depreciation or 0) / 1e9, 2),
+                        "stock_compensation": round((stock_comp or 0) / 1e9, 2),
+                        "working_capital": round((working_capital or 0) / 1e9, 2),
+                        "deferred_tax": round((deferred_tax or 0) / 1e9, 2),
+                        "other": round(other / 1e9, 2),
+                        "total_ocf": round((ocf or 0) / 1e9, 2)
+                    })
+
+                    # Funding Sources (how CapEx is financed)
+                    free_cashflow = values.get("Free Cash Flow", 0)
+                    debt_issuance = values.get("Long Term Debt Issuance", 0) or 0
+                    debt_payment = values.get("Long Term Debt Payments", 0) or 0
+                    net_debt = values.get("Net Long Term Debt Issuance", 0) or 0
+                    stock_issuance = values.get("Common Stock Issuance", 0) or values.get("Issuance Of Capital Stock", 0) or 0
+                    stock_repurchase = values.get("Repurchase Of Capital Stock", 0) or 0
+                    dividends = values.get("Cash Dividends Paid", 0) or 0
+
+                    funding_sources_history.append({
+                        "year": year,
+                        "period": period,
+                        "capex": round(abs(capex or 0) / 1e9, 2),
+                        "ocf": round((ocf or 0) / 1e9, 2),
+                        "free_cashflow": round((free_cashflow or 0) / 1e9, 2),
+                        "debt_issuance": round((debt_issuance or 0) / 1e9, 2),
+                        "debt_payment": round(abs(debt_payment or 0) / 1e9, 2),
+                        "net_debt_financing": round((net_debt or 0) / 1e9, 2),
+                        "stock_issuance": round((stock_issuance or 0) / 1e9, 2),
+                        "stock_repurchase": round(abs(stock_repurchase or 0) / 1e9, 2),
+                        "dividends": round(abs(dividends or 0) / 1e9, 2)
+                    })
+
             # Process financials data (Revenue)
             annual_fin = data.get("annual_financials", {})
             if annual_fin and annual_fin.get("data"):
@@ -452,7 +500,7 @@ class DataProcessor:
                             "value": round(revenue / 1e9, 2)  # Convert to billions
                         })
 
-            # Process balance sheet data (Debt)
+            # Process balance sheet data (Debt, Cash)
             annual_bs = data.get("annual_balance_sheet", {})
             if annual_bs and annual_bs.get("data"):
                 bs_data = annual_bs["data"]
@@ -475,12 +523,16 @@ class DataProcessor:
             ocf_history.sort(key=lambda x: x["year"], reverse=True)
             revenue_history.sort(key=lambda x: x["year"], reverse=True)
             debt_history.sort(key=lambda x: x["year"], reverse=True)
+            ocf_breakdown_history.sort(key=lambda x: x["year"], reverse=True)
+            funding_sources_history.sort(key=lambda x: x["year"], reverse=True)
 
             processed[ticker] = {
                 "capex": capex_history,
                 "ocf": ocf_history,
                 "revenue": revenue_history,
-                "debt": debt_history
+                "debt": debt_history,
+                "ocf_breakdown": ocf_breakdown_history,
+                "funding_sources": funding_sources_history
             }
 
         return processed
