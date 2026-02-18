@@ -53,4 +53,7 @@ Thumbs.db
 data/raw/*.json
 data/processed/*.json
 data/processed/*.csv
+data_history/raw/*.json
+data_history/processed/*.json
+data_history/processed/*.csv
 *.log

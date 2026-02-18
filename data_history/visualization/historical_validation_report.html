@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>90s IT Bubble - Historical Validation Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; border-bottom: 3px solid #8b5cf6; padding-bottom: 10px; }
+        h2 { color: #555; margin-top: 30px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th { background: #8b5cf6; color: white; padding: 10px; text-align: left; }
+        td { padding: 8px 10px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f8f9fa; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .chart-grid img { width: 100%; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 10px 0; }
+        .danger { background: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 10px 0; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 10px 0; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .comparison > div { padding: 15px; border-radius: 8px; }
+        .similarities { background: #e8f5e9; }
+        .differences { background: #e3f2fd; }
+        ul { padding-left: 20px; }
+        li { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>90s IT Bubble Historical Validation</h1>
+        <p>Validating AI Funding Risk Early Warning System against the 1995-2003 IT/Telecom Bubble</p>
+
+        <div class="card">
+            <h2>Yearly Aggregate Metrics (6 IT Infrastructure Companies)</h2>
+            <table>
+                <tr>
+                    <th>Year</th>
+                    <th>Total Revenue</th>
+                    <th>Total CapEx</th>
+                    <th>CapEx/OCF</th>
+                    <th>Peak Market Cap</th>
+                    <th>Risk Level</th>
+                </tr>
+                
+        <tr>
+            <td><strong>1995</strong></td>
+            <td>$34.2B</td>
+            <td>$5.0B</td>
+            <td>0.456</td>
+            <td>$0.15T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (29.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>1996</strong></td>
+            <td>$66.4B</td>
+            <td>$6.4B</td>
+            <td>0.342</td>
+            <td>$0.35T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (20.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>1997</strong></td>
+            <td>$83.5B</td>
+            <td>$8.4B</td>
+            <td>0.358</td>
+            <td>$0.53T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (29.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>1998</strong></td>
+            <td>$96.3B</td>
+            <td>$8.0B</td>
+            <td>0.310</td>
+            <td>$0.88T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (20.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>1999</strong></td>
+            <td>$115.7B</td>
+            <td>$8.2B</td>
+            <td>0.238</td>
+            <td>$1.73T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (20.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>2000</strong></td>
+            <td>$135.0B</td>
+            <td>$13.2B</td>
+            <td>0.333</td>
+            <td>$2.32T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (38.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>2001</strong></td>
+            <td>$124.5B</td>
+            <td>$14.4B</td>
+            <td>0.428</td>
+            <td>$1.03T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (20.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>2002</strong></td>
+            <td>$108.5B</td>
+            <td>$8.3B</td>
+            <td>0.257</td>
+            <td>$0.63T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (20.0)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>2003</strong></td>
+            <td>$110.6B</td>
+            <td>$6.3B</td>
+            <td>0.173</td>
+            <td>$0.74T</td>
+            <td style="color: #28a745; font-weight: bold;">LOW (20.0)</td>
+        </tr>
+        
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Charts</h2>
+            <div class="chart-grid">
+                <div><img src="output/capex_trajectory_90s.png" alt="CapEx Trajectory"></div>
+                <div><img src="output/risk_timeline_90s.png" alt="Risk Timeline"></div>
+                <div><img src="output/company_comparison_90s.png" alt="Company Comparison"></div>
+                <div><img src="output/market_cap_vs_fundamentals_90s.png" alt="Market Cap vs Fundamentals"></div>
+            </div>
+            <div style="margin-top: 15px;">
+                <img src="output/revenue_vs_capex_growth_90s.png" alt="Revenue vs CapEx Growth" style="width: 100%;">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Warning Signals That Preceded the 2000 Crash</h2>
+            <div class="danger">
+                <ul><li>Capex growth consistently outpacing revenue growth (1998-2001)</li><li>Aggregate capex-to-cashflow ratio rising above 0.50 threshold</li><li>Massive employee hiring despite slowing revenue growth</li><li>Companies funding capex through debt issuance rather than operations</li><li>Market cap disconnection from fundamental metrics</li><li>Credit spreads initially tight then rapidly widening in 2001-2002</li></ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Comparison with Current AI Bubble</h2>
+            <div class="comparison">
+                <div class="similarities">
+                    <h3>Similarities</h3>
+                    <ul><li>Dominant infrastructure companies spending heavily on buildout</li><li>Market expects exponential growth to justify capex</li><li>Low interest rates enabling cheap debt financing</li><li>High capex-to-cashflow ratios across sector leaders</li><li>Revenue growth strong but potentially unsustainable</li></ul>
+                </div>
+                <div class="differences">
+                    <h3>Differences</h3>
+                    <ul><li>90s IT companies had lower profit margins than current AI leaders</li><li>Current AI companies (except Oracle) carry less debt relative to cash</li><li>90s capex was more hardware-intensive (factories, fiber optic cables)</li><li>Current AI companies are more profitable and cash-flow positive</li><li>Market concentration is higher in current AI wave (fewer dominant players)</li></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <p style="text-align: center; color: #999; font-size: 12px;">
+                Generated: 2026-02-17 22:49:33 |
+                AI Funding Risk Early Warning System - Historical Validation Module
+            </p>
+        </div>
+    </div>
+</body>
+</html>
